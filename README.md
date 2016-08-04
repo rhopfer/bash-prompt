@@ -1,4 +1,4 @@
-# Use
+## Use
 Copy the script to e.g. `~/.bash_prompt` and source it with
 ```
 source ~/.bash_prompt
@@ -13,7 +13,7 @@ If you want to install it for all users on the system, copy it to
 * `/etc/bash/bashrc.d/` (e.g. on Gentoo)
 * `/etc/profile.d/` (e.g. on Debian and Ubuntu)
 
-# Color scheme
+## Color scheme
 The script contains a color sheme for 256 color terminals as well as a fallback scheme for terminals which support just 16 colors. 
 To enable 256 color capabilities on your terminal, add following to your `.bashrc`:
 ```
@@ -36,7 +36,7 @@ $ tput colors
 ```
 See https://fedoraproject.org/wiki/Features/256_Color_Terminals
 
-## Customization
+### Customization
 The color scheme can be customized by the `PROMPT_COLORS` environment variable. The variable has the form
 ```
 PROMPT_COLORS="keyword1=color1:keyword2=color2:..."
@@ -52,7 +52,7 @@ Example:
 export PROMPT_COLORS="path=1;30:sign=1;33"
 ```
 
-# Alternatives
+## Alternatives
 
 * [Liquid prompt](https://github.com/nojhan/liquidprompt)
 * [Powerline](https://github.com/powerline/powerline)
