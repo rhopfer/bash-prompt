@@ -1,4 +1,4 @@
-CONVERT_ARGS = -size 600 -background black -fill white -pointsize 16
+CONVERT_ARGS = -size 800 -background black -fill white -pointsize 14
 
 PANGO_DIR = pango
 IMAGE_DIR = images
