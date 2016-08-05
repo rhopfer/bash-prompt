@@ -1,0 +1,3 @@
+<span color="#7e002a"></span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> false
+<span color="#7e002a"></span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#8a8a8a">1</span><span color="#a80000">$</span> ^C
+<span color="#7e002a"></span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#8a8a8a">130</span><span color="#a80000">$</span>
