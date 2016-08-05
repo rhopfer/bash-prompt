@@ -3,6 +3,10 @@ At `$HOME`:
 
 ![Base prompt](images/base.png)
 
+With all features:
+
+![Base prompt](images/full.png)
+
 ## Use
 Copy the script to e.g. `~/.bash_prompt` and source it with
 ```
