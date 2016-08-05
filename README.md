@@ -1,3 +1,8 @@
+## Look
+At `$HOME`:
+
+![Base prompt](images/base.png)
+
 ## Use
 Copy the script to e.g. `~/.bash_prompt` and source it with
 ```
