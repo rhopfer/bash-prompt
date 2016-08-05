@@ -1,22 +1,35 @@
 ## Look
 At `$HOME`:
 
-![Base prompt](images/base.png)
+![~ $](images/base.png)
 
-Return code:
+With return code &ne; 0:
 
-![Return code](images/errno.png)
+![~ 1$](images/errno.png)
 
-Background jobs:
+With background jobs:
 
-![Background jobs](images/bg.png)
+![~[1] $](images/bg.png)
+
+In a read-only directory:
+
+![:/usr/src $](images/ro.png)
+
+In a GIT repository it shows the current branch and a star if there are uncommited changes.
+Only visible if the environment variable `PROMPT_GIT=1` is set.
+
+![~/dev/bash-prompt{master} $](images/git.png)
 
 With all features:
 
 ![Full prompt](images/full.png)
 
+Also good readable with light background:
+
+![White background](images/white.png)
+
 ## Use
-Copy the script to e.g. `~/.bash_prompt` and source it with
+Copy `bash_prompt.sh` to e.g. `~/.bash_prompt` and source it with
 ```
 source ~/.bash_prompt
 ```
