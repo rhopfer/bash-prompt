@@ -1,0 +1,5 @@
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> ssh hermes
+<span color="#0054d2">@hermes </span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> logout
+Connection to hermes closed.
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> ssh -Y hermes
+<span color="#00a800">@</span><span color="#0054d2">hermes </span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span>
