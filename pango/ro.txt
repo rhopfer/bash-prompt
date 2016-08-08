@@ -1,0 +1,1 @@
+<span font_weight="bold" color="#a80000">:</span><span font_weight="bold">/usr/src</span><span color="#007e7e"> </span><span color="#00a800">$</span>

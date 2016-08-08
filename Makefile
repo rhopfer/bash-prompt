@@ -1,4 +1,8 @@
-CONVERT_ARGS = -size 800 -background black -fill white -pointsize 14 -bordercolor black -border 3
+# Converts Pango to PNG
+
+_ARGS = -size 800 -pointsize 14 -border 3
+ARGS = $(_ARGS) -fill white -background black -bordercolor black
+ARGS_WHITE = $(_ARGS) -fill black -background white -bordercolor white
 
 PANGO_DIR = pango
 IMAGE_DIR = images
@@ -7,6 +11,9 @@ IMAGES = $(patsubst $(PANGO_DIR)/%,$(IMAGE_DIR)/%,$(SRCS:.txt=.png))
 
 images: $(IMAGES)
 
+$(IMAGE_DIR)/white.png: $(PANGO_DIR)/white.txt
+	convert $(ARGS_WHITE) pango:"`< $^`" $@
+
 $(IMAGE_DIR)/%.png: $(PANGO_DIR)/%.txt
-	convert $(CONVERT_ARGS) pango:"`< $^`" $@
+	convert $(ARGS) pango:"`< $^`" $@
 

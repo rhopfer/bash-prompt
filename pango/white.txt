@@ -1,0 +1,1 @@
+<span color="#7e002a">(screen:0) </span><span color="#0054d2">rho</span><span color="#00a800">@</span><span color="#0054d2">lemnos </span><span font_weight="bold" color="#0054d2"></span><span font_weight="bold">~/…/rtairos/devices</span><span color="#007e7e">{master}</span><span color="#7e5400">[1]</span> <span color="#00a800">$</span>
