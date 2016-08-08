@@ -157,60 +157,45 @@ function setprompt {
 	local ppid=$PPID
 	local user_switched=0
 	local subsh=
+	local remote=0
 	while [[ $ppid -ne 1 ]]; do
 		# Check for user switching
 		uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
-		if [[ $uid -ne $EUID ]]; then
+		if [[ $uid -ne $EUID && $remote -eq 0 ]]; then
 			user_switched=1
 		fi
 
 		comm=$(</proc/$ppid/comm)
-		if [[ -z "$subsh" ]]; then
-			if [[ "$comm" == "script" ]]; then
-				subsh=$comm
-			fi
+		if [[ -z "$subsh" && "$comm" == script ]]; then
+			subsh=$comm
+		elif [[ "$comm" =~ ssh ]]; then
+			remote=1
 		fi
 		ppid=`awk '{ print $4 }' /proc/$ppid/stat`
 	done
 
-
 	# Hostname
 	local host=""
-	local host_str="${colors[host]}@\H"
-	if [[ ! "$PROMPT_HOST" =~ $no ]]; then
-		# Green '@' with X11 support
+	if [[ "$PROMPT_HOST" =~ $yes || $remote -eq 1 ]]; then
+		host="\H"
+	elif [[ "$PROMPT_HOST" =~ $no ]]; then
+		: # do nothing
+	fi
+	if [[ -n "$host" ]]; then
 		if [[ -n "$DISPLAY" ]]; then
-			host_str="${colors[display]}@${colors[host]}\H"
-		fi
-
-
-		if [[ "$PROMPT_HOST" =~ $yes ]]; then
-			host="$host_str"
-		elif [ -n "$SSH_TTY" ]; then
-			host="$host_str"
+			# Green '@' with X11 support
+			host="${colors[display]}@${colors[host]}${host}${nocolor}"
 		else
-			local ppid=$PPID
-			while [[ $ppid -ne 1 ]]; do
-				grep -q ssh /proc/$ppid/comm
-				if [ $? -eq 0 ]; then
-					host="$host_str"
-					break
-				fi
-				ppid=`awk '{ print $4 }' /proc/$ppid/stat`
-			done
+			host="${colors[host]}@${host}${nocolor}"
 		fi
 	fi
 
 	# Username
 	local user=""
-	if [[ "$PROMPT_USER" =~ $yes ]]; then
+	if [[ "$PROMPT_USER" =~ $yes || ${EUID} -eq 0 || $user_switched -eq 1 ]]; then
 		user="\u"
 	elif [[ "$PROMPT_USER" =~ $no ]]; then
 		: # do nothing
-	else
-		if [[ ${EUID} -eq 0 || $user_switched -eq 1 ]]; then
-			user="\u"
-		fi
 	fi
 	if [[ -n "$user" ]]; then
 		if [[ ${EUID} -eq 0 ]] ; then
