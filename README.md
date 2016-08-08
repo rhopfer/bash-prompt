@@ -15,10 +15,20 @@ In a read-only directory:
 
 ![:/usr/src $](images/ro.png)
 
+If `PROMPT_DIRTRIM=n` is set, only the `n` trailing path components are shown:
+
+![Dirtrim](images/path.png)
+
 In a GIT repository it shows the current branch and a star if there are uncommited changes.
 Only visible if the environment variable `PROMPT_GIT=1` is set.
 
 ![~/dev/bash-prompt{master} $](images/git.png)
+
+Analog in a SVN repository it shows the current revision if `PROMPT_SVN=1` is set.
+
+If the current shell is a subshell:
+
+![Subshell](images/subshell.png)
 
 The user name is only visible if root, but can be forced by setting `PROMPT_USER=1`.
 
@@ -28,9 +38,9 @@ The host name is only visible on remote hosts, but can be forced by setting `PRO
 
 ![Host](images/host.png)
 
-If the current shell is a subshell:
+If `DISPLAY` variable is set, it will be shown by a green `@` on the host part.
 
-![Subshell](images/subshell.png)
+![Display](images/display.png)
 
 With all features:
 
