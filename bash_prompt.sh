@@ -161,19 +161,26 @@ function setprompt {
 	local shlvl=0
 	while [[ $ppid -ne 1 ]]; do
 		local comm=$(</proc/$ppid/comm)
-		if [[ -z "$subsh" && "$comm" == script ]]; then
-			subsh=$comm
-		elif [[ "$comm" =~ ssh ]]; then
-			remote=1
-		fi
 
 		# Check for user switching
-		if [[ $remote -eq 0 && "$comm" =~ bash ]]; then
+		if [[ $remote -eq 0 && "$comm" =~ bash|su ]]; then
 			local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
 			if [[ $uid -ne $EUID ]]; then
 				user_switched=1
 			fi
-			shlvl=$((shlvl+1))
+		fi
+
+		if [[ -z "$subsh" ]]; then
+			if [[ "$comm" == bash && $user_switched -eq 0 ]]; then
+				shlvl=$((shlvl+1))
+			elif [[ $shlvl -gt 0 && ! "$PROMPT_IGNORE" =~ bash ]]; then
+				subsh=bash
+			elif [[ "$comm" =~ script|screen|tmux|vcsh && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
+				subsh=$comm
+			fi
+		fi
+		if [[ "$comm" =~ ssh ]]; then
+			remote=1
 		fi
 
 		ppid=`awk '{ print $4 }' /proc/$ppid/stat`
@@ -246,22 +253,15 @@ function setprompt {
 	fi
 		
 	# Subshell
-	if [ -n "$VCSH_REPO_NAME" ]; then
-		subsh="vcsh:$VCSH_REPO_NAME"
-	elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
-		subsh=chroot
-	elif [ -n "$TMUX" ]; then
-		subsh=tmux
-	elif [[ $TERM =~ screen ]]; then
-		subsh=screen
-		if [ -n $WINDOW ]; then
-			subsh=$subsh:$WINDOW
-		fi
-	fi
-	if [[ -n "$subsh" && "$PROMPT_IGNORE" =~ "$subsh" ]]; then
-		subsh=
-	elif [[ -z "$subsh" && $shlvl -gt 0 && ! "$PROMPT_IGNORE" =~ bash ]]; then
+	if [[ "$subsh" == bash ]]; then
 		subsh="$shlvl"
+	elif [[ "$subsh" == vcsh && -n "$VCSH_REPO_NAME" ]]; then
+		subsh="$subsh:$VCSH_REPO_NAME"
+	elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
+		# XXX: Check for /proc exists
+		subsh=chroot
+	elif [[ "$subsh" == screen && -n $WINDOW ]]; then
+		subsh=$subsh:$WINDOW
 	fi
 	if [[ -n "$subsh" ]]; then
 		subsh="${colors[term]}(${subsh})${nocolor} "
