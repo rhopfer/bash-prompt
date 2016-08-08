@@ -20,6 +20,18 @@ Only visible if the environment variable `PROMPT_GIT=1` is set.
 
 ![~/dev/bash-prompt{master} $](images/git.png)
 
+The user name is only visible if root, but can be forced by setting `PROMPT_USER=1`.
+
+![User](images/user.png)
+
+The host name is only visible on remote hosts, but can be forced by setting `PROMPT_HOST=1`.
+
+![Host](images/host.png)
+
+If the current shell is a subshell:
+
+![Subshell](images/subshell.png)
+
 With all features:
 
 ![Full prompt](images/full.png)
