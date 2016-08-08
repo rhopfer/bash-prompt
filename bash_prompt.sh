@@ -106,8 +106,8 @@ function setprompt {
 	done
 
 	# Path
-	local path="\W"
-	if [[ -n "$PROMPT_DIRTRIM" && $PROMPT_DIRTRIM =~ ^[0-9]+$ ]]; then
+	local path="\w"
+	if [[ $PROMPT_DIRTRIM -gt 0 ]]; then
 		path=${PWD/$HOME/\~}
 		local ellipsis
 		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
