@@ -3,7 +3,7 @@
 # Roland's Sophisticated Bash Prompt
 #
 #        Author: Roland Hopferwieser
-# Last modified: August 2, 2016
+# Last modified: August 8, 2016
 #
 # Environment Variables
 # ---------------------
@@ -61,7 +61,7 @@ function setprompt {
 		# 256 color terminal
 		colors[host]="0;38;5;33"
 		colors[user]="0;38;5;33"
-		colors[root]="0;38;5;160"
+		colors[root]="1;38;5;160"
 		colors[path]="0;1"
 		colors[jobs]="0;38;5;136"
 		colors[display]="0;38;5;40"
@@ -77,7 +77,7 @@ function setprompt {
 		# 16 color terminal
 		colors[host]="0;34"       # cyan
 		colors[user]="1;34"       # bright blue
-		colors[root]="0;31"       # red
+		colors[root]="1;31"       # bright red
 		colors[path]="0;1"        # reset
 		colors[jobs]="0;33"       # bright yellow
 		colors[display]="0;32"    # green
