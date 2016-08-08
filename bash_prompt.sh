@@ -128,7 +128,7 @@ function setprompt {
 		# First element: ~ or ''
 		if [[ $(( count - 1 )) -gt $PROMPT_DIRTRIM ]]; then
 			local offset=$((count-PROMPT_DIRTRIM))
-			path="${colors[path]}${ellipsis}${colors[path]}/${elements[*]:offset:PROMPT_DIRTRIM}"
+			path="${ellipsis}/${elements[*]:offset:PROMPT_DIRTRIM}"
 			[[ "${elements[0]}" == '~' ]] && path="~/$path"
 		fi
 		IFS="$OIFS"
@@ -162,18 +162,21 @@ function setprompt {
 	local subsh=
 	local remote=0
 	while [[ $ppid -ne 1 ]]; do
-		# Check for user switching
-		local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
-		if [[ $uid -ne $EUID && $remote -eq 0 ]]; then
-			user_switched=1
-		fi
-
 		local comm=$(</proc/$ppid/comm)
 		if [[ -z "$subsh" && "$comm" == script ]]; then
 			subsh=$comm
 		elif [[ "$comm" =~ ssh ]]; then
 			remote=1
 		fi
+
+		# Check for user switching
+		if [[ "$comm" =~ bash ]]; then
+			local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
+			if [[ $uid -ne $EUID && $remote -eq 0 ]]; then
+				user_switched=1
+			fi
+		fi
+
 		ppid=`awk '{ print $4 }' /proc/$ppid/stat`
 	done
 
