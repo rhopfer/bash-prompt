@@ -153,6 +153,27 @@ function setprompt {
 		jobs="${colors[jobs]}[\j]${nocolor}"
 	fi
 
+	# Determine information from parent processes
+	local ppid=$PPID
+	local user_switched=0
+	local subsh=
+	while [[ $ppid -ne 1 ]]; do
+		# Check for user switching
+		uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
+		if [[ $uid -ne $EUID ]]; then
+			user_switched=1
+		fi
+
+		comm=$(</proc/$ppid/comm)
+		if [[ -z "$subsh" ]]; then
+			if [[ "$comm" == "script" ]]; then
+				subsh=$comm
+			fi
+		fi
+		ppid=`awk '{ print $4 }' /proc/$ppid/stat`
+	done
+
+
 	# Hostname
 	local host=""
 	local host_str="${colors[host]}@\H"
@@ -187,27 +208,12 @@ function setprompt {
 	elif [[ "$PROMPT_USER" =~ $no ]]; then
 		: # do nothing
 	else
-		if [[ ${EUID} == 0 ]] ; then
+		if [[ ${EUID} -eq 0 || $user_switched -eq 1 ]]; then
 			user="\u"
-		else
-			# Determine user has switched
-			local ppid=$PPID
-			local user_switched=0
-			while [[ $ppid -ne 1 ]]; do
-				uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
-				if [[ $uid != $EUID ]]; then
-					user_switched=1
-					break
-				fi
-				ppid=`awk '{ print $4 }' /proc/$ppid/stat`
-			done
-			if [[ $user_switched == 1 ]]; then
-				user="\u"
-			fi
 		fi
 	fi
 	if [[ -n "$user" ]]; then
-		if [[ ${EUID} == 0 ]] ; then
+		if [[ ${EUID} -eq 0 ]] ; then
 			user="${colors[root]}${user}"
 		else
 			user="${colors[user]}${user}"
@@ -264,6 +270,8 @@ function setprompt {
 			term=$term:$WINDOW
 		fi
 		term="($term) "
+	elif [[ -n "$subsh" ]]; then
+		term="($subsh) "
 	elif [[ -n ${PROMPT_SHLVL} && $SHLVL -gt $shlvloff ]]; then
 		local shlvl=$((SHLVL-shlvloff))
 		term="($shlvl) "
