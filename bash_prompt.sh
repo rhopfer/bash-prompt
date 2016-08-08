@@ -22,9 +22,6 @@
 # PROMPT_IGNORE (string)
 #     Colon seperated string of sub-shells to ignore.
 #
-# PROMPT_SHLVL (integer)
-#     Show the shell level if $SHLVL greater than this value (and not a special subshell).
-#
 # PROMPT_COLORS (string)
 #     Define custom colors. The variable has the form
 #        keyword1=color1:keyword2=color2 ...
@@ -161,6 +158,7 @@ function setprompt {
 	local user_switched=0
 	local subsh=
 	local remote=0
+	local shlvl=0
 	while [[ $ppid -ne 1 ]]; do
 		local comm=$(</proc/$ppid/comm)
 		if [[ -z "$subsh" && "$comm" == script ]]; then
@@ -170,11 +168,12 @@ function setprompt {
 		fi
 
 		# Check for user switching
-		if [[ "$comm" =~ bash ]]; then
+		if [[ $remote -eq 0 && "$comm" =~ bash ]]; then
 			local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
-			if [[ $uid -ne $EUID && $remote -eq 0 ]]; then
+			if [[ $uid -ne $EUID ]]; then
 				user_switched=1
 			fi
+			shlvl=$((shlvl+1))
 		fi
 
 		ppid=`awk '{ print $4 }' /proc/$ppid/stat`
@@ -247,7 +246,6 @@ function setprompt {
 	fi
 		
 	# Subshell
-	local shlvloff=${PROMPT_SHLVL:-1}
 	if [ -n "$VCSH_REPO_NAME" ]; then
 		subsh="vcsh:$VCSH_REPO_NAME"
 	elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
@@ -259,12 +257,11 @@ function setprompt {
 		if [ -n $WINDOW ]; then
 			subsh=$subsh:$WINDOW
 		fi
-	elif [[ -z $subsh && -n ${PROMPT_SHLVL} && $SHLVL -gt $shlvloff ]]; then
-		local shlvl=$((SHLVL-shlvloff))
-		subsh="$shlvl"
 	fi
 	if [[ -n "$subsh" && "$PROMPT_IGNORE" =~ "$subsh" ]]; then
 		subsh=
+	elif [[ -z "$subsh" && $shlvl -gt 0 && ! "$PROMPT_IGNORE" =~ bash ]]; then
+		subsh="$shlvl"
 	fi
 	if [[ -n "$subsh" ]]; then
 		subsh="${colors[term]}(${subsh})${nocolor} "
