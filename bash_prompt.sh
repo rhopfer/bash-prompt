@@ -259,24 +259,25 @@ function setprompt {
 	local term=""
 	local shlvloff=${PROMPT_SHLVL:-1}
 	if [ -n "$VCSH_REPO_NAME" ]; then
-		term="(vcsh:$VCSH_REPO_NAME) "
+		term="vcsh:$VCSH_REPO_NAME"
 	elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
-		term="(chroot)"
+		term="chroot"
 	elif [ -n "$TMUX" ]; then
-		term="(tmux) "
+		term="tmux"
 	elif [[ $TERM =~ screen ]]; then
 		term=screen
 		if [ -n $WINDOW ]; then
 			term=$term:$WINDOW
 		fi
-		term="($term) "
 	elif [[ -n "$subsh" ]]; then
-		term="($subsh) "
+		term="$subsh"
 	elif [[ -n ${PROMPT_SHLVL} && $SHLVL -gt $shlvloff ]]; then
 		local shlvl=$((SHLVL-shlvloff))
-		term="($shlvl) "
+		term="$shlvl"
 	fi
-	term="${colors[term]}${term}${nocolor}"
+	if [[ -n "$term" ]]; then
+		term="${colors[term]}(${term})${nocolor} "
+	fi
 
 	PS1="${term}${user}${host}${colon}${path}${repos}${jobs} ${sign} ${nocolor}"
 }
