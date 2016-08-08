@@ -189,6 +189,21 @@ function setprompt {
 	else
 		if [[ ${EUID} == 0 ]] ; then
 			user="\u"
+		else
+			# Determine user has switched
+			local ppid=$PPID
+			local user_switched=0
+			while [[ $ppid -ne 1 ]]; do
+				uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
+				if [[ $uid != $EUID ]]; then
+					user_switched=1
+					break
+				fi
+				ppid=`awk '{ print $4 }' /proc/$ppid/stat`
+			done
+			if [[ $user_switched == 1 ]]; then
+				user="\u"
+			fi
 		fi
 	fi
 	if [[ -n "$user" ]]; then
