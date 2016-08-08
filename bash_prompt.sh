@@ -170,6 +170,10 @@ function setprompt {
 			fi
 		fi
 
+		if [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
+			subsh=chroot
+		fi
+
 		if [[ -z "$subsh" ]]; then
 			if [[ "$comm" == bash && $user_switched -eq 0 ]]; then
 				shlvl=$((shlvl+1))
@@ -257,9 +261,6 @@ function setprompt {
 		subsh="$shlvl"
 	elif [[ "$subsh" == vcsh && -n "$VCSH_REPO_NAME" ]]; then
 		subsh="$subsh:$VCSH_REPO_NAME"
-	elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
-		# XXX: Check for /proc exists
-		subsh=chroot
 	elif [[ "$subsh" == screen && -n $WINDOW ]]; then
 		subsh=$subsh:$WINDOW
 	fi
