@@ -14,10 +14,13 @@
 #     Show Subversion revision in repositories. (Default: no)
 #
 # PROMPT_HOST (boolean)
-#     Show hostname in prompt. Normaly shown on remote host (SSH_TTY). 
+#     Show hostname in prompt. Normaly shown on remote host. 
 #
 # PROMPT_USER (boolean)
 #     Show username in prompt. Normaly shown when root.
+#
+# PROMPT_IGNORE (string)
+#     Colon seperated string of sub-shells to ignore.
 #
 # PROMPT_SHLVL (integer)
 #     Show the shell level if $SHLVL greater than this value (and not a special subshell).
@@ -160,12 +163,12 @@ function setprompt {
 	local remote=0
 	while [[ $ppid -ne 1 ]]; do
 		# Check for user switching
-		uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
+		local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
 		if [[ $uid -ne $EUID && $remote -eq 0 ]]; then
 			user_switched=1
 		fi
 
-		comm=$(</proc/$ppid/comm)
+		local comm=$(</proc/$ppid/comm)
 		if [[ -z "$subsh" && "$comm" == script ]]; then
 			subsh=$comm
 		elif [[ "$comm" =~ ssh ]]; then
@@ -241,30 +244,30 @@ function setprompt {
 	fi
 		
 	# Subshell
-	local term=""
 	local shlvloff=${PROMPT_SHLVL:-1}
 	if [ -n "$VCSH_REPO_NAME" ]; then
-		term="vcsh:$VCSH_REPO_NAME"
+		subsh="vcsh:$VCSH_REPO_NAME"
 	elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
-		term="chroot"
+		subsh=chroot
 	elif [ -n "$TMUX" ]; then
-		term="tmux"
+		subsh=tmux
 	elif [[ $TERM =~ screen ]]; then
-		term=screen
+		subsh=screen
 		if [ -n $WINDOW ]; then
-			term=$term:$WINDOW
+			subsh=$subsh:$WINDOW
 		fi
-	elif [[ -n "$subsh" ]]; then
-		term="$subsh"
-	elif [[ -n ${PROMPT_SHLVL} && $SHLVL -gt $shlvloff ]]; then
+	elif [[ -z $subsh && -n ${PROMPT_SHLVL} && $SHLVL -gt $shlvloff ]]; then
 		local shlvl=$((SHLVL-shlvloff))
-		term="$shlvl"
+		subsh="$shlvl"
 	fi
-	if [[ -n "$term" ]]; then
-		term="${colors[term]}(${term})${nocolor} "
+	if [[ -n "$subsh" && "$PROMPT_IGNORE" =~ "$subsh" ]]; then
+		subsh=
+	fi
+	if [[ -n "$subsh" ]]; then
+		subsh="${colors[term]}(${subsh})${nocolor} "
 	fi
 
-	PS1="${term}${user}${host}${colon}${path}${repos}${jobs} ${sign} ${nocolor}"
+	PS1="${subsh}${user}${host}${colon}${path}${repos}${jobs} ${sign} "
 }
 PROMPT_COMMAND=setprompt
 
