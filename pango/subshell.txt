@@ -1,0 +1,8 @@
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> screen
+<span color="#7e002a">(screen:0) </span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> logout
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> vcsh dot
+<span color="#7e002a">(vcsh:dot) </span><span font_weight="bold">~</span><span color="#007e7e">{master} </span><span color="#00a800">$</span> logout
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> bash
+<span color="#7e002a">(1) </span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> logout
+
+

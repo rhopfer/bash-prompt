@@ -1,0 +1,4 @@
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> su -
+<span font_weight="bold" color="#a80000">root</span> <span font_weight="bold">~</span> <span color="#00a800">#</span> logout
+<span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span> PROMPT_USER=1
+<span color="#0054d2">rho </span><span font_weight="bold">~</span><span color="#007e7e"> </span><span color="#00a800">$</span>
