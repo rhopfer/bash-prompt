@@ -27,20 +27,20 @@
 #        keyword1=color1:keyword2=color2 ...
 #
 #     Keywords:
-#         host			the hostname
-#         user			the username
-#         root			if the effective UID is 0
-#         path			the path
-#         jobs			the jobs in the background
-#         display		if X11 support available
-#         symlink		if path is not the real path
-#         sign			the prompt sign, $ for user, # for root
-#         errsign		the sign if the recent command terminated with an error
-#         errno			the error number (if not 0)
-#         readonly		the colon shown if the path is readonly
-#         repos			the repository
-#         changes		the sign for a repository with modifications
-#         term			the subshell
+#         host          the hostname
+#         user          the username
+#         root          if the effective UID is 0
+#         path          the path
+#         jobs          the jobs in the background
+#         display       if X11 support available
+#         symlink       if path is not the real path
+#         sign          the prompt sign, $ for user, # for root
+#         errsign       the sign if the recent command terminated with an error
+#         errno         the error number (if not 0)
+#         readonly      the colon shown if the path is readonly
+#         repos         the repository
+#         changes       the sign for a repository with modifications
+#         term          the subshell
 #
 #     Colors:
 #         A ANSI color sequence (see https://en.wikipedia.org/wiki/ANSI_escape_code#Colors)
@@ -164,7 +164,7 @@ function setprompt {
 		local comm=$(</proc/$ppid/comm)
 
 		# Check for user switching
-		if [[ $remote -eq 0 && "$comm" =~ bash|su ]]; then
+		if [[ $remote -eq 0 && "$comm" =~ "bash|su" ]]; then
 			local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
 			if [[ $uid -ne $EUID ]]; then
 				user_switched=1
@@ -180,7 +180,7 @@ function setprompt {
 				shlvl=$((shlvl+1))
 			elif [[ $shlvl -gt 0 && ! "$PROMPT_IGNORE" =~ bash ]]; then
 				subsh=bash
-			elif [[ "$comm" =~ script|screen|tmux|vcsh && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
+			elif [[ "$comm" =~ "script|screen|tmux|vcsh" && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
 				subsh=$comm
 			fi
 		fi
