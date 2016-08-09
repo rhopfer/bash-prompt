@@ -160,6 +160,7 @@ function setprompt {
 	local remote=0
 	local shlvl=0
 	while [[ $ppid -ne 1 ]]; do
+		[ -r /proc/$ppid/comm ] || break
 		local comm=$(</proc/$ppid/comm)
 
 		# Check for user switching
