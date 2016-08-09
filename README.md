@@ -26,11 +26,11 @@ Only visible if the environment variable `PROMPT_GIT=1` is set.
 
 Analog in a SVN repository it shows the current revision if `PROMPT_SVN=1` is set.
 
-If the current bash is running inside one of screen, tmux, script(1), chroot(1), [vcsh](https://github.com/RichiH/vcsh/), or another bash:
+If the current bash is running inside one of screen, tmux, script(1), chroot(1), [vcsh](https://github.com/RichiH/vcsh/), or another bash, this will be shown on the beginning of the prompt. Each of them can be ignored by putting it to the `PROMPT_IGNORE` environment variable.
 
 ![Subshell](images/subshell.png)
 
-The user name is only visible if root, but can be forced by setting `PROMPT_USER=1`.
+The user name is only visible if root or is different from your login, but can be forced by setting `PROMPT_USER=1`.
 
 ![User](images/user.png)
 
