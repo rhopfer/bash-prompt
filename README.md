@@ -26,7 +26,7 @@ Only visible if the environment variable `PROMPT_GIT=1` is set.
 
 Analog in a SVN repository it shows the current revision if `PROMPT_SVN=1` is set.
 
-If the current shell is a subshell:
+If the current bash is running inside one of screen, tmux, script(1), chroot(1), [vcsh](https://github.com/RichiH/vcsh/), or another bash:
 
 ![Subshell](images/subshell.png)
 
