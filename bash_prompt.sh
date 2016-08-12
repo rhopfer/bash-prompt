@@ -135,34 +135,49 @@ function setprompt {
 	fi
 	path=${path#/}
 
-	if [[ $PROMPT_DIRTRIM -gt 0 ]]; then
-		local ellipsis
+	local trim="${PROMPT_DIRTRIM:-0}"
+	local OIFS="$IFS"
+	local IFS='/'
+	local elements=( $path )
+	path=""
+	local count="${#elements[*]}"
+	local offset=$(( trim > 0 ? count - trim : 0 ))
+	local len=$(( trim > 0 ? trim : count ))
+	elements=( "${elements[@]:offset:len}" )
+	count="${#elements[*]}"
+
+	local realpath=$(readlink -f .)
+	if [[ "$realpath" != "$PWD" ]]; then
+		local lncmp=( ${realpath#/} )
+		lncmp=( "${lncmp[@]:offset:len}" )
+		local symlink=0
+		for i in "${!elements[@]}"; do
+			if [[ "${elements[$i]}" != "${lncmp[$i]}" ]]; then
+				symlink=$i
+				break
+			fi
+		done
+		len=$((len - symlink))
+		path="${colors[symlink]}${elements[*]:symlink:len}"
+		elements=( "${elements[@]:0:symlink}" )
+		count="${#elements[*]}"
+	fi
+	if [[ $count -gt 0 && -n $path ]]; then
+		path="/$path"
+	fi
+
+	path="${elements[*]}${path}"
+	if [[ $offset -gt 0 ]]; then
+		local ellipsis='...'
 		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
 			ellipsis='…'
-		else
-			ellipsis='...'
 		fi
-
-		local OIFS="$IFS"
-		local IFS='/'
-		local elements=( $path )
-
-		local count="${#elements[*]}"
-
-		if [[ $count -gt $PROMPT_DIRTRIM ]]; then
-			local offset=$((count - PROMPT_DIRTRIM))
-			path="${ellipsis}/${elements[*]:offset:PROMPT_DIRTRIM}"
-		fi
-		IFS="$OIFS"
+		path="${ellipsis}/${path}"
 	fi
+	IFS="$OIFS"
 
-	# Change path color if on symbolic path
 	[[ -z "$base" || ( -n "$base" && -n "$path" ) ]] && path="/$path"
-	if [[ $(readlink -f .) != "$PWD" ]]; then
-		path="${colors[symlink]}${path}${nocolor}"
-	else
-		path="${colors[path]}${path}${nocolor}"
-	fi
+	path="${colors[path]}${path}${nocolor}"
 	path="${base}${path}"
 
 	# Close sign
