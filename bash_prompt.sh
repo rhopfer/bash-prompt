@@ -3,7 +3,7 @@
 # Roland's Sophisticated Bash Prompt
 #
 #        Author: Roland Hopferwieser
-# Last modified: August 8, 2016
+# Last modified: August 12, 2016
 #
 # Environment Variables
 # ---------------------
@@ -38,6 +38,7 @@
 #         errsign       the sign if the recent command terminated with an error
 #         errno         the error number (if not 0)
 #         readonly      the colon shown if the path is readonly
+#         unsafe        the colon shown if the path is world writeable
 #         repos         the repository
 #         changes       the sign for a repository with modifications
 #         term          the subshell
@@ -70,6 +71,7 @@ function setprompt {
 		colors[errsign]="0;38;5;160"
 		colors[errno]="0;38;5;245"
 		colors[readonly]="1;38;5;160"
+		colors[unsafe]="1;38;5;136"
 		colors[changes]="0"
 		colors[repos]="0;38;5;37"
 		colors[term]="0;38;5;125"
@@ -78,15 +80,16 @@ function setprompt {
 		colors[host]="0;34"       # cyan
 		colors[user]="1;34"       # bright blue
 		colors[root]="1;31"       # bright red
-		colors[path]="0;1"        # reset
-		colors[jobs]="0;33"       # bright yellow
+		colors[path]="0;1"        # default
+		colors[jobs]="0;33"       # yellow
 		colors[display]="0;32"    # green
 		colors[symlink]="1;30"    # gray
 		colors[sign]="0;32"       # green
 		colors[errsign]="0;31"    # red
 		colors[errno]="1;30"      # gray
 		colors[readonly]="0;31"   # red
-		colors[changes]="0"       # reset
+		colors[unsafe]="1;33"     # bright yellow
+		colors[changes]="0"       # bold
 		colors[repos]="1;36"      # bright blue
 		colors[term]="0;35"       # magenta
 	fi
@@ -131,7 +134,7 @@ function setprompt {
 		IFS="$OIFS"
 	fi
 
-	# Change path color if on symbolik path
+	# Change path color if on symbolic path
 	if [[ $(readlink -f .) != "$PWD" ]]; then
 		path="${colors[symlink]}${path}${nocolor}"
 	else
@@ -225,9 +228,11 @@ function setprompt {
 		fi
 	fi
 
-	# Show red ':' if path not writeable
+	# Show ':' if path is not or world writeable
 	if [[ ! -w "$PWD" ]]; then
 		colon="${colors[readonly]}:"
+	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
+		colon="${colors[unsafe]}:"
 	elif [[ -n "${user}" || "${host}" ]]; then
 		colon=" "
 	fi
