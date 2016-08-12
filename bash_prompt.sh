@@ -156,7 +156,7 @@ function setprompt {
 	fi
 
 	# Change path color if on symbolic path
-	[[ -n "$base" && -n "$path" ]] && path="/$path"
+	[[ -z "$base" || ( -n "$base" && -n "$path" ) ]] && path="/$path"
 	if [[ $(readlink -f .) != "$PWD" ]]; then
 		path="${colors[symlink]}${path}${nocolor}"
 	else
