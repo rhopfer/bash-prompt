@@ -1,6 +1,6 @@
 # Converts Pango to PNG
 
-_ARGS = -size 800 -pointsize 14 -border 3
+_ARGS = -size 800 -pointsize 12 -border 3
 ARGS = $(_ARGS) -fill white -background black -bordercolor black
 ARGS_WHITE = $(_ARGS) -fill black -background white -bordercolor white
 

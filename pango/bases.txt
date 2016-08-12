@@ -1,0 +1,4 @@
+<span font_weight="bold">~</span><span font_weight="bold"></span><span color="#007e7e"> </span><span color="#00a800">$</span> cd /usr/src/linux
+<span font_weight="bold" color="#a80000">:</span><span font_weight="bold" color="#8a8a8a">…/src/linux</span><span color="#007e7e"> </span><span color="#00a800">$</span> PROMPT_BASES="linux=/usr/src/linux"
+<span font_weight="bold" color="#a80000">:</span><span underline="single">linux</span><span font_weight="bold" color="#8a8a8a"></span><span color="#007e7e"> </span><span color="#00a800">$</span> cd drivers/net/ethernet/
+<span font_weight="bold" color="#a80000">:</span><span underline="single">linux</span><span font_weight="bold" color="#8a8a8a">/…/net/ethernet</span><span color="#007e7e"> </span><span color="#00a800">$</span>
