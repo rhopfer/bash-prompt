@@ -122,7 +122,7 @@ function setprompt {
 	local base
 	while read basepath name; do
 		basepath="${basepath/\~/$HOME}"
-		if [[ "$path" =~ ^"$basepath" ]]; then
+		if [[ -n "$basepath" && "$path" =~ ^"$basepath" ]]; then
 			path=${path/$basepath/}
 			base="${colors[base]}${name}${nocolor}"
 			break
@@ -190,7 +190,7 @@ function setprompt {
 		local comm=$(</proc/$ppid/comm)
 
 		# Check for user switching
-		if [[ $remote -eq 0 && "$comm" =~ "bash|su" ]]; then
+		if [[ $remote -eq 0 && "$comm" =~ bash|su ]]; then
 			local uid=$(awk '/Uid:/ { print $2; }' /proc/$ppid/status)
 			if [[ $uid -ne $EUID ]]; then
 				user_switched=1
@@ -206,7 +206,7 @@ function setprompt {
 				shlvl=$((shlvl+1))
 			elif [[ $shlvl -gt 0 && ! "$PROMPT_IGNORE" =~ bash ]]; then
 				subsh=bash
-			elif [[ "$comm" =~ "script|screen|tmux|vcsh" && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
+			elif [[ "$comm" =~ script|screen|tmux|vcsh && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
 				subsh=$comm
 			fi
 		fi
