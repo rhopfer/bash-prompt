@@ -99,7 +99,7 @@ PROMPT_COLORS="keyword1=color1:keyword2=color2:..."
 ```
 Valid keywords are:
 ```
-host user root path jobs display symlink sign errsign errno readonly repos changes term
+host user root path jobs display symlink sign errsign errno readonly unsafe repos changes term base
 ```
 Colors are defined by [ANSI color sequences](https://en.wikipedia.org/wiki/ANSI_escape_code#Colors).
 
