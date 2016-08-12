@@ -20,11 +20,18 @@
 #     Show username in prompt. Normaly shown when root.
 #
 # PROMPT_IGNORE (string)
-#     Colon seperated string of sub-shells to ignore.
+#     Colon separated string of sub-shells to ignore.
+#
+# PROMPT_BASES (string)
+#     Pathes that should be reduced to a name. The string has the form
+#         name1=path1:name2=path2 ...
+#
+#     Example:
+#         PATH_PROMPT="linux=/usr/src/linux"
 #
 # PROMPT_COLORS (string)
 #     Define custom colors. The variable has the form
-#        keyword1=color1:keyword2=color2 ...
+#         keyword1=color1:keyword2=color2 ...
 #
 #     Keywords:
 #         host          the hostname
@@ -75,6 +82,7 @@ function setprompt {
 		colors[changes]="0"
 		colors[repos]="0;38;5;37"
 		colors[term]="0;38;5;125"
+		colors[base]="4"
 	else
 		# 16 color terminal
 		colors[host]="0;34"       # cyan
@@ -92,6 +100,7 @@ function setprompt {
 		colors[changes]="0"       # bold
 		colors[repos]="1;36"      # bright blue
 		colors[term]="0;35"       # magenta
+		colors[base]="4"          # underlined
 	fi
 
 	# Load custom colors
@@ -109,9 +118,23 @@ function setprompt {
 	done
 
 	# Path
-	local path="\w"
+	local path="$PWD"
+	local base
+	while read basepath name; do
+		basepath="${basepath/\~/$HOME}"
+		if [[ "$path" =~ ^"$basepath" ]]; then
+			path=${path/$basepath/}
+			base="${colors[base]}${name}${nocolor}"
+			break
+		fi
+	done < <(<<<$PROMPT_BASES awk -F= '{print $2,$1}' RS=':|\n')
+	if [[ -z "$base" && "$path" =~ "$HOME" ]]; then
+		path="${path/$HOME/}"
+		base="${colors[path]}~${nocolor}"
+	fi
+	path=${path/\//}
+
 	if [[ $PROMPT_DIRTRIM -gt 0 ]]; then
-		path=${PWD/$HOME/\~}
 		local ellipsis
 		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
 			ellipsis='…'
@@ -125,21 +148,21 @@ function setprompt {
 
 		local count="${#elements[*]}"
 
-		# First element: ~ or ''
-		if [[ $(( count - 1 )) -gt $PROMPT_DIRTRIM ]]; then
-			local offset=$((count-PROMPT_DIRTRIM))
+		if [[ $count -gt $PROMPT_DIRTRIM ]]; then
+			local offset=$((count - PROMPT_DIRTRIM))
 			path="${ellipsis}/${elements[*]:offset:PROMPT_DIRTRIM}"
-			[[ "${elements[0]}" == '~' ]] && path="~/$path"
 		fi
 		IFS="$OIFS"
 	fi
 
 	# Change path color if on symbolic path
+	[[ -n "$base" && -n "$path" ]] && path="/$path"
 	if [[ $(readlink -f .) != "$PWD" ]]; then
 		path="${colors[symlink]}${path}${nocolor}"
 	else
 		path="${colors[path]}${path}${nocolor}"
 	fi
+	path="${base}${path}"
 
 	# Close sign
 	local sign="\\\$"
@@ -230,9 +253,9 @@ function setprompt {
 
 	# Show ':' if path is not or world writeable
 	if [[ ! -w "$PWD" ]]; then
-		colon="${colors[readonly]}:"
+		colon="${colors[readonly]}:${nocolor}"
 	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
-		colon="${colors[unsafe]}:"
+		colon="${colors[unsafe]}:${nocolor}"
 	elif [[ -n "${user}" || "${host}" ]]; then
 		colon=" "
 	fi
