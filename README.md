@@ -19,6 +19,10 @@ If `PROMPT_DIRTRIM=n` is set, only the `n` trailing path components are shown:
 
 ![Dirtrim](images/path.png)
 
+It is possible to define work bases using `PROMPT_BASES`:
+
+![Work bases](images/bases.png)
+
 In a GIT repository it shows the current branch and a star if there are uncommited changes.
 Only visible if the environment variable `PROMPT_GIT=1` is set.
 
