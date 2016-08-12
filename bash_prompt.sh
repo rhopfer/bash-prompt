@@ -121,18 +121,19 @@ function setprompt {
 	local path="$PWD"
 	local base
 	while read basepath name; do
-		basepath="${basepath/\~/$HOME}"
-		if [[ -n "$basepath" && "$path" =~ ^"$basepath" ]]; then
-			path=${path/$basepath/}
+		basepath="${basepath/#\~/$HOME}"
+		basepath="${basepath%/}"
+		if [[ -n "$basepath" && ( $path == "$basepath" || "$path" =~ ^"$basepath/" ) ]]; then
+			path=${path/#$basepath/}
 			base="${colors[base]}${name}${nocolor}"
 			break
 		fi
 	done < <(<<<$PROMPT_BASES awk -F= '{print $2,$1}' RS=':|\n')
-	if [[ -z "$base" && "$path" =~ "$HOME" ]]; then
+	if [[ -z "$base" && ( $path == "$HOME" || "$path" =~ "$HOME" ) ]]; then
 		path="${path/$HOME/}"
 		base="${colors[path]}~${nocolor}"
 	fi
-	path=${path/\//}
+	path=${path#/}
 
 	if [[ $PROMPT_DIRTRIM -gt 0 ]]; then
 		local ellipsis
