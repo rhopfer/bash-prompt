@@ -3,7 +3,7 @@
 # Roland's Sophisticated Bash Prompt
 #
 #        Author: Roland Hopferwieser
-# Last modified: August 12, 2016
+# Last modified: August 13, 2016
 #
 # Environment Variables
 # ---------------------
@@ -120,11 +120,13 @@ function setprompt {
 	# Path
 	local path="$PWD"
 	local base
+	local root
 	while read basepath name; do
 		basepath="${basepath/#\~/$HOME}"
 		basepath="${basepath%/}"
 		if [[ -n "$basepath" && ( $path == "$basepath" || "$path" =~ ^"$basepath/" ) ]]; then
 			path=${path/#$basepath/}
+			root="${basepath%/}"
 			base="${colors[base]}${name}${nocolor}"
 			break
 		fi
@@ -133,52 +135,36 @@ function setprompt {
 		path="${path/$HOME/}"
 		base="${colors[path]}~${nocolor}"
 	fi
-	path=${path#/}
 
-	local trim="${PROMPT_DIRTRIM:-0}"
-	local OIFS="$IFS"
-	local IFS='/'
-	local elements=( $path )
-	path=""
-	local count="${#elements[*]}"
-	local offset=$(( trim > 0 ? count - trim : 0 ))
-	local len=$(( trim > 0 ? trim : count ))
-	elements=( "${elements[@]:offset:len}" )
-	count="${#elements[*]}"
-
-	local realpath=$(readlink -f .)
-	if [[ "$realpath" != "$PWD" ]]; then
-		local lncmp=( ${realpath#/} )
-		lncmp=( "${lncmp[@]:offset:len}" )
-		local symlink=0
-		for i in "${!elements[@]}"; do
-			if [[ "${elements[$i]}" != "${lncmp[$i]}" ]]; then
-				symlink=$i
-				break
-			fi
-		done
-		len=$((len - symlink))
-		path="${colors[symlink]}${elements[*]:symlink:len}"
-		elements=( "${elements[@]:0:symlink}" )
-		count="${#elements[*]}"
-	fi
-	if [[ $count -gt 0 && -n $path ]]; then
-		path="/$path"
-	fi
-
-	path="${elements[*]}${path}"
-	if [[ $offset -gt 0 ]]; then
+	[[ $( readlink -f . ) != "$PWD" ]] && local symlink=1
+	local dirs
+	while [[ -n "$path" ]]; do
+		local elem="${path##*/}"
+		dirs="${elem}/${dirs}"
+		if [[ $symlink -ne 0 && -L "${root}${path}" ]]; then
+			dirs="${colors[symlink]}$dirs"
+			symlink=0
+		fi
+		path="${path%/*}"
+		local count=$((count + 1))
+		if [[ $PROMPT_DIRTRIM -gt 0 && $count -eq $PROMPT_DIRTRIM ]]; then
+			break
+		fi
+	done
+	[[ -n $dirs && $symlink -eq 1 ]] && dirs="${colors[symlink]}$dirs"
+	if [[ -n $path ]]; then
 		local ellipsis='...'
 		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
 			ellipsis='…'
 		fi
-		path="${ellipsis}/${path}"
+		dirs="${ellipsis}/$dirs"
+	elif [[ ( -z $base ) ]]; then
+		dirs="/$dirs"
 	fi
-	IFS="$OIFS"
+	[[ ( -n "$base" && -n "$dirs" ) ]] && dirs="/$dirs"
+	path="${dirs%/}"
+	path="${base}${colors[path]}${path}${nocolor}"
 
-	[[ -z "$base" || ( -n "$base" && -n "$path" ) ]] && path="/$path"
-	path="${colors[path]}${path}${nocolor}"
-	path="${base}${path}"
 
 	# Close sign
 	local sign="\\\$"
