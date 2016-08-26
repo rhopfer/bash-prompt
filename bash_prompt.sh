@@ -3,7 +3,7 @@
 # Roland's Sophisticated Bash Prompt
 #
 #        Author: Roland Hopferwieser
-# Last modified: August 13, 2016
+# Last modified: August 26, 2016
 #
 # Environment Variables
 # ---------------------
@@ -65,7 +65,7 @@ function setprompt {
 
 	local nocolor="\[\e[0m\]"
 	declare -A colors
-	if [[ $(tput colors) -gt 8 ]]; then
+	if [[ $(tput colors 2> /dev/null) -gt 8 ]]; then
 		# 256 color terminal
 		colors[host]="0;38;5;33"
 		colors[user]="0;38;5;33"
