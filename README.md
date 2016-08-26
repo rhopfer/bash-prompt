@@ -65,9 +65,15 @@ If you want to use it in all new shells, add it to your `.bashrc`, e.g.
 [ -f ~/.bash_prompt ] && source ~/.bash_prompt
 ```
 
-If you want to install it for all users on the system, copy it to
+If you want to install it for all users on the system, copy `bash_prompt.sh` to
 * `/etc/bash/bashrc.d/` (e.g. on Gentoo)
 * `/etc/profile.d/` (e.g. on Debian and Ubuntu)
+
+It is recommended to set following in your `.bashrc`
+```
+export PROMPT_DIRTRIM=2
+export PROMPT_GIT=1
+```
 
 ## Color scheme
 The script contains a color sheme for 256 color terminals as well as a fallback scheme for terminals which support just 16 colors. 
