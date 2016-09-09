@@ -3,7 +3,7 @@
 # Roland's Sophisticated Bash Prompt
 #
 #        Author: Roland Hopferwieser
-# Last modified: August 26, 2016
+# Last modified: September 9, 2016
 #
 # Environment Variables
 # ---------------------
@@ -21,6 +21,9 @@
 #
 # PROMPT_IGNORE (string)
 #     Colon separated string of sub-shells to ignore.
+#
+# PROMPT_DIRTRIM (integer)
+#     Number of trailing path components shown (Default: 2)
 #
 # PROMPT_BASES (string)
 #     Pathes that should be reduced to a name. The string has the form
@@ -137,6 +140,7 @@ function setprompt {
 
 	[[ $( readlink -f . ) != "$PWD" ]] && local symlink=1
 	local dirs
+	local dirtrim=${PROMPT_DIRTRIM:-2}
 	while [[ -n "$path" ]]; do
 		local elem="${path##*/}"
 		dirs="${elem}/${dirs}"
@@ -146,7 +150,7 @@ function setprompt {
 		fi
 		path="${path%/*}"
 		local count=$((count + 1))
-		if [[ $PROMPT_DIRTRIM -gt 0 && $count -eq $PROMPT_DIRTRIM ]]; then
+		if [[ $dirtrim -gt 0 && $count -eq $dirtrim ]]; then
 			break
 		fi
 	done

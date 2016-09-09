@@ -15,7 +15,7 @@ In a read-only directory:
 
 ![:/usr/src $](images/ro.png)
 
-If `PROMPT_DIRTRIM=n` is set, only the `n` trailing path components are shown:
+Only the two trailing path components are shown by default. You can change this by setting `PROMPT_DIRTRIM=n`.
 
 ![Dirtrim](images/path.png)
 
@@ -69,14 +69,13 @@ If you want to install it for all users on the system, copy `bash_prompt.sh` to
 * `/etc/bash/bashrc.d/` (e.g. on Gentoo)
 * `/etc/profile.d/` (e.g. on Debian and Ubuntu)
 
-It is recommended to set following in your `.bashrc`
-```
-export PROMPT_DIRTRIM=2
-export PROMPT_GIT=1
-```
-
 ## Color scheme
-The script contains a color sheme for 256 color terminals as well as a fallback scheme for terminals which support just 16 colors. 
+The script contains a color sheme for 256 color terminals as well as a fallback scheme for terminals which support just 16 colors.
+To get the color numbers of your actual TERM, use:
+```
+$ tput colors
+256
+```
 To enable 256 color capabilities on your terminal, add following to your `.bashrc`:
 ```
 case "$TERM" in
@@ -90,11 +89,6 @@ if [ -n "$TERMCAP" ] && [ "$TERM" = "screen-256color" ]; then
   TERMCAP=$(echo "$TERMCAP" | sed -e 's/Co#8/Co#256/g')
   export TERMCAP
 fi
-```
-To get the color numbers of your actual TERM, use the following:
-```
-$ tput colors
-256
 ```
 See https://fedoraproject.org/wiki/Features/256_Color_Terminals
 
