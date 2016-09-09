@@ -1,0 +1,2 @@
+<span font_weight="bold">~</span> <span color="#00a800">$</span> cd /usr/src/linux
+<span font_weight="bold">…/src/</span><span font_weight="bold" color="#8a8a8a">linux</span><span color="#a80000">/</span> <span color="#00a800">$</span>

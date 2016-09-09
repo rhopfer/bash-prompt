@@ -1,4 +1,4 @@
 <span font_weight="bold">~</span><span font_weight="bold"></span><span color="#007e7e"> </span><span color="#00a800">$</span> cd /usr/src/linux
-<span font_weight="bold" color="#8a8a8a">…/src/linux</span><span color="#a80000">/</span><span color="#007e7e"> </span><span color="#00a800">$</span> PROMPT_BASES="linux=/usr/src/linux"
-<span underline="single">linux</span><span font_weight="bold" color="#8a8a8a"></span><span color="#a80000">/</span><span color="#007e7e"> </span><span color="#00a800">$</span> cd drivers/net/ethernet/
-<span underline="single">linux</span><span font_weight="bold" color="#8a8a8a">/…/net/ethernet</span><span color="#a80000">/</span><span color="#007e7e"> </span><span color="#00a800">$</span>
+<span font_weight="bold">…/src/</span><span font_weight="bold" color="#8a8a8a">linux</span><span color="#a80000">/</span> <span color="#00a800">$</span> PROMPT_BASES="linux=/usr/src/linux"
+<span underline="single" font_weight="bold">linux</span><span font_weight="bold" color="#8a8a8a"></span><span color="#a80000">/</span><span color="#007e7e"> </span><span color="#00a800">$</span> cd drivers/net/ethernet/
+<span underline="single" font_weight="bold">linux</span><span font_weight="bold" color="#8a8a8a">/…/net/ethernet</span><span color="#a80000">/</span><span color="#007e7e"> </span><span color="#00a800">$</span>

@@ -19,6 +19,10 @@ Only the two trailing path components are shown by default. You can change this 
 
 ![Dirtrim](images/path.png)
 
+The prompt detects if you follow a symlink and show it in a different color:
+
+![Symlink](images/symlink.png)
+
 It is possible to define work bases using `PROMPT_BASES`:
 
 ![Work bases](images/bases.png)
