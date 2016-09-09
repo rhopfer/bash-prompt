@@ -122,6 +122,7 @@ function setprompt {
 	# Path
 	local path="$PWD"
 	local base
+	local basebath
 	local root
 	while read basepath name; do
 		basepath="${basepath/#\~/$HOME}"
@@ -166,8 +167,18 @@ function setprompt {
 	fi
 	[[ ( -n "$base" && -n "$dirs" ) ]] && dirs="/$dirs"
 	path="${dirs%/}"
-	path="${base}${colors[path]}${path}${nocolor}"
+	path="${base}${colors[path]}${path}"
 
+	# Show extra '/' if path is not or world writeable
+	if [[ ! -w "$PWD" ]]; then
+		path="${path%%/}${colors[readonly]}/"
+	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
+		path="${path%%/}${colors[unsafe]}/"
+	elif [[ -n "${user}" || "${host}" ]]; then
+		# separate path from user/host
+		path=" $path"
+	fi
+	path="${path}${nocolor}"
 
 	# Close sign
 	local sign="\\\$"
@@ -254,16 +265,6 @@ function setprompt {
 		if [[ -z "$host" ]]; then
 			user="${user}"
 		fi
-	fi
-
-	# Show extra '/' if path is not or world writeable
-	if [[ ! -w "$PWD" ]]; then
-		path="${path%%/}${colors[readonly]}/${nocolor}"
-	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
-		path="${path%%/}${colors[unsafe]}/${nocolor}"
-	elif [[ -n "${user}" || "${host}" ]]; then
-		# separate path from user/host
-		path=" $path"
 	fi
 
 	# Repositories
