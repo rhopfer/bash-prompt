@@ -44,8 +44,8 @@
 #         sign          the prompt sign, $ for user, # for root
 #         errsign       the sign if the recent command terminated with an error
 #         errno         the error number (if not 0)
-#         readonly      the colon shown if the path is readonly
-#         unsafe        the colon shown if the path is world writeable
+#         readonly      the trailing slash shown if the path is readonly
+#         unsafe        the trailing slash shown if the path is world writeable
 #         repos         the repository
 #         changes       the sign for a repository with modifications
 #         term          the subshell
@@ -59,7 +59,6 @@
 
 function setprompt {
 	local retval=$?
-	local colon=""
 	local yes="1|true|yes|always"
 	local no="0|false|no|never"
 
@@ -253,13 +252,14 @@ function setprompt {
 		fi
 	fi
 
-	# Show ':' if path is not or world writeable
+	# Show extra '/' if path is not or world writeable
 	if [[ ! -w "$PWD" ]]; then
-		colon="${colors[readonly]}:${nocolor}"
+		path="${path%%/}${colors[readonly]}/${nocolor}"
 	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
-		colon="${colors[unsafe]}:${nocolor}"
+		path="${path%%/}${colors[unsafe]}/${nocolor}"
 	elif [[ -n "${user}" || "${host}" ]]; then
-		colon=" "
+		# separate path from user/host
+		path=" $path"
 	fi
 
 	# Repositories
@@ -299,7 +299,7 @@ function setprompt {
 		subsh="${colors[term]}(${subsh})${nocolor} "
 	fi
 
-	PS1="${subsh}${user}${host}${colon}${path}${repos}${jobs} ${sign} "
+	PS1="${subsh}${user}${host}${path}${repos}${jobs} ${sign} "
 }
 PROMPT_COMMAND=setprompt
 
