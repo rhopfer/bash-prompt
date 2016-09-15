@@ -1,17 +1,13 @@
-#!/bin/bash
-#
 # Roland's Sophisticated Bash Prompt
 #
 #        Author: Roland Hopferwieser
-# Last modified: September 9, 2016
+# Last modified: September 15, 2016
 #
 # Environment Variables
 # ---------------------
-# PROMPT_GIT (boolean)
-#     Show GIT branch in repositories. (Default: no)
-#
-# PROMPT_SVN (boolean)
-#     Show Subversion revision in repositories. (Default: no)
+# PROMPT_REPOS (boolean or string)
+#     Show git or svn repository. Set it to 0 to disable it.
+#     Set it to 'git' or 'svn' to enable only one of both.
 #
 # PROMPT_HOST (boolean)
 #     Show hostname in prompt. Normaly shown on remote host. 
@@ -62,8 +58,8 @@
 
 function setprompt {
 	local retval=$?
-	local yes="1|true|yes|always"
-	local no="0|false|no|never"
+	local yes="(1|true|yes|always)"
+	local no="(0|false|no|never)"
 
 	local nocolor="\[\e[0m\]"
 	declare -A colors
@@ -118,82 +114,6 @@ function setprompt {
 		fi
 		colors[$c]="\[\e[${colors[$c]}m\]"
 	done
-
-	# Path
-	local path="$PWD"
-	local base
-	local basebath
-	local root
-	while read basepath name; do
-		basepath="${basepath/#\~/$HOME}"
-		basepath="${basepath%/}"
-		if [[ -n "$basepath" && ( $path == "$basepath" || "$path" =~ ^"$basepath/" ) ]]; then
-			path=${path/#$basepath/}
-			root="${basepath%/}"
-			base="${colors[base]}${name}${nocolor}"
-			break
-		fi
-	done < <(<<<$PROMPT_BASES awk -F= '{print $2,$1}' RS=':|\n')
-	if [[ -z "$base" && ( $path == "$HOME" || "$path" =~ "$HOME" ) ]]; then
-		path="${path/$HOME/}"
-		base="${colors[path]}~${nocolor}"
-	fi
-
-	[[ $( readlink -f . ) != "$PWD" ]] && local symlink=1
-	local dirs
-	local dirtrim=${PROMPT_DIRTRIM:-2}
-	while [[ -n "$path" ]]; do
-		local elem="${path##*/}"
-		dirs="${elem}/${dirs}"
-		if [[ $symlink -ne 0 && -L "${root}${path}" ]]; then
-			dirs="${colors[symlink]}$dirs"
-			symlink=0
-		fi
-		path="${path%/*}"
-		local count=$((count + 1))
-		if [[ $dirtrim -gt 0 && $count -eq $dirtrim ]]; then
-			break
-		fi
-	done
-	[[ -n $dirs && $symlink -eq 1 ]] && dirs="${colors[symlink]}$dirs"
-	if [[ -n $path ]]; then
-		local ellipsis='...'
-		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
-			ellipsis='…'
-		fi
-		dirs="${ellipsis}/$dirs"
-	elif [[ ( -z $base ) ]]; then
-		dirs="/$dirs"
-	fi
-	[[ ( -n "$base" && -n "$dirs" ) ]] && dirs="/$dirs"
-	path="${dirs%/}"
-	path="${base}${colors[path]}${path}"
-
-	# Show extra '/' if path is not or world writeable
-	if [[ ! -w "$PWD" ]]; then
-		path="${path%%/}${colors[readonly]}/"
-	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
-		path="${path%%/}${colors[unsafe]}/"
-	elif [[ -n "${user}" || "${host}" ]]; then
-		# separate path from user/host
-		path=" $path"
-	fi
-	path="${path}${nocolor}"
-
-	# Close sign
-	local sign="\\\$"
-	if [[ $retval -eq 0 ]]; then
-		sign="${colors[sign]}${sign}"
-	else
-		sign="${colors[errno]}${retval}${colors[errsign]}${sign}"
-	fi
-	sign="${sign}${nocolor}"
-
-	# Jobs
-	local jobs=""
-	if [ $(jobs -p | wc -l) -gt 0 ]; then
-		jobs="${colors[jobs]}[\j]${nocolor}"
-	fi
 
 	# Determine information from parent processes
 	local ppid=$PPID
@@ -267,9 +187,94 @@ function setprompt {
 		fi
 	fi
 
+	# Path
+	local path="$PWD"
+	local base
+	local basebath
+	local root
+	while read basepath name; do
+		basepath="${basepath/#\~/$HOME}"
+		basepath="${basepath%/}"
+		if [[ -n "$basepath" && ( $path == "$basepath" || "$path" =~ ^"$basepath/" ) ]]; then
+			path=${path/#$basepath/}
+			root="${basepath%/}"
+			base="${colors[base]}${name}${nocolor}"
+			break
+		fi
+	done < <(<<<$PROMPT_BASES awk -F= '{print $2,$1}' RS=':|\n')
+	if [[ -z "$base" && ( $path == "$HOME" || "$path" =~ "$HOME" ) ]]; then
+		path="${path/$HOME/}"
+		base="${colors[path]}~${nocolor}"
+	fi
+
+	[[ $( readlink -f . ) != "$PWD" ]] && local symlink=1
+	local dirs
+	local dirtrim=${PROMPT_DIRTRIM:-2}
+	while [[ -n "$path" ]]; do
+		local elem="${path##*/}"
+		dirs="${elem}/${dirs}"
+		if [[ $symlink -ne 0 && -L "${root}${path}" ]]; then
+			dirs="${colors[symlink]}$dirs"
+			symlink=0
+		fi
+		path="${path%/*}"
+		local count=$((count + 1))
+		if [[ $dirtrim -gt 0 && $count -eq $dirtrim ]]; then
+			break
+		fi
+	done
+	[[ -n $dirs && $symlink -eq 1 ]] && dirs="${colors[symlink]}$dirs"
+	if [[ -n $path ]]; then
+		local ellipsis='...'
+		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
+			ellipsis='…'
+		fi
+		dirs="${ellipsis}/$dirs"
+	elif [[ ( -z $base ) ]]; then
+		dirs="/$dirs"
+	fi
+	[[ ( -n "$base" && -n "$dirs" ) ]] && dirs="/$dirs"
+	path="${dirs%/}"
+	path="${base}${colors[path]}${path}"
+
+	# Show extra '/' if path is not or world writeable
+	if [[ ! -w "$PWD" ]]; then
+		path="${path%%/}${colors[readonly]}/"
+	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
+		path="${path%%/}${colors[unsafe]}/"
+	fi
+	if [[ -n "${user}" || -n "${host}" ]]; then
+		# separate path from user/host
+		path=" $path"
+	fi
+	path="${path}${nocolor}"
+
+	# Close sign
+	local sign="\\\$"
+	if [[ $retval -eq 0 ]]; then
+		sign="${colors[sign]}${sign}"
+	else
+		sign="${colors[errno]}${retval}${colors[errsign]}${sign}"
+	fi
+	sign="${sign}${nocolor}"
+
+	# Jobs
+	local jobs=""
+	if [ $(jobs -p | wc -l) -gt 0 ]; then
+		jobs="${colors[jobs]}[\j]${nocolor}"
+	fi
+
 	# Repositories
 	local repos=""
-	if [[ -x /usr/bin/git && $PROMPT_GIT =~ $yes ]]; then
+	if [[ -n "$PROMPT_REPOS" && ! $PROMPT_REPOS =~ $yes ]]; then
+		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ git ]]; then
+			local nogit=1
+		fi
+		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ svn ]]; then
+			local nosvn=1
+		fi
+	fi
+	if [[ -x /usr/bin/git && ! $nogit -eq 1 ]]; then
 		local git_info=$(/usr/bin/git name-rev HEAD 2>/dev/null | sed -nre 's/HEAD (.*)/{\1/p')
 		if [[ -n ${git_info} ]]; then
 			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
@@ -279,7 +284,7 @@ function setprompt {
 		fi
 		repos="${colors[repos]}${git_info}"
 	fi
-	if [[ -x /usr/bin/svnversion && $PROMPT_SVN =~ $yes ]]; then
+	if [[ -x /usr/bin/svnversion && ! $nosvn -eq 1 ]]; then
 		local svn_stat=$(/usr/bin/svnversion 2>/dev/null)
 		local svn_rev=$(echo $svn_stat | sed -nre 's/([0-9]+:?[0-9]+).*/\1/p')
 		local svn_info=""
@@ -306,5 +311,6 @@ function setprompt {
 
 	PS1="${subsh}${user}${host}${path}${repos}${jobs} ${sign} "
 }
-PROMPT_COMMAND=setprompt
+
+export PROMPT_COMMAND=setprompt
 

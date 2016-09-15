@@ -1,3 +1,4 @@
-<span font_weight="bold">~/dev/bash-prompt</span> <span color="#00a800">$</span> PROMPT_GIT=1
+<span font_weight="bold">~/dev/bash-prompt</span><span color="#007e7e">{master} </span><span color="#00a800">$</span> PROMPT_REPOS=0
+<span font_weight="bold">~/dev/bash-prompt</span> <span color="#00a800">$</span> PROMPT_REPOS=git
 <span font_weight="bold">~/dev/bash-prompt</span><span color="#007e7e">{master} </span><span color="#00a800">$</span> echo &gt;&gt; Makefile
 <span font_weight="bold">~/dev/bash-prompt</span><span color="#007e7e">{master</span>*<span color="#007e7e">} </span><span color="#00a800">$</span>
