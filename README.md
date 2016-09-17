@@ -22,8 +22,8 @@ Also good readable with light background:
 
 ![~[1] $](images/bg.png)
 
-**Directory rights.** An additional colored slash will be shown at the end of the path if the directory on some circumstances.
-Red means it is readonly, yellow if writeable for everyone.
+**Directory rights.** An additional colored slash will be shown at the end of the path on some circumstances.
+Red means it is readonly, yellow it is writeable for everyone.
 
 ![:/usr/src $](images/ro.png)
 
