@@ -1,7 +1,8 @@
 # Roland's Sophisticated Bash Prompt
 #
-#        Author: Roland Hopferwieser
-# Last modified: September 15, 2016
+#        Author: Roland Hopferwieser <develop -AT- int0x80.at>
+#        Source: https://github.com/rhopfer/bash-prompt
+# Last modified: January 31, 2017
 #
 # Environment Variables
 # ---------------------
@@ -35,10 +36,11 @@
 #     Keywords:
 #         host          the hostname
 #         user          the username
-#         root          if the effective UID is 0
+#         root          user if the effective UID is 0
 #         path          the path
-#         jobs          the jobs in the background
-#         display       if X11 support available
+#         jobs          the background jobs
+#         at            the @ before hostname
+#         display       the @ if X11 support available
 #         symlink       if path is not the real path
 #         sign          the prompt sign, $ for user, # for root
 #         errsign       the sign if the recent command terminated with an error
@@ -70,6 +72,7 @@ function setprompt {
 		colors[root]="1;38;5;160"
 		colors[path]="0;1"
 		colors[jobs]="0;38;5;136"
+		colors[at]="0;38;5;245"
 		colors[display]="0;38;5;40"
 		colors[symlink]="1;38;5;245"
 		colors[sign]="0;38;5;40"
@@ -88,6 +91,7 @@ function setprompt {
 		colors[root]="1;31"       # bright red
 		colors[path]="0;1"        # default
 		colors[jobs]="0;33"       # yellow
+		colors[at]="1;30"         # gray
 		colors[display]="0;32"    # green
 		colors[symlink]="1;30"    # gray
 		colors[sign]="0;32"       # green
@@ -165,7 +169,7 @@ function setprompt {
 			# Green '@' with X11 support
 			host="${colors[display]}@${colors[host]}${host}${nocolor}"
 		else
-			host="${colors[host]}@${host}${nocolor}"
+			host="${colors[at]}@${colors[host]}${host}${nocolor}"
 		fi
 	fi
 
