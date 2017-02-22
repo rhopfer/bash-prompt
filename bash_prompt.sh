@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: January 31, 2017
+# Last modified: February 22, 2017
 #
 # Environment Variables
 # ---------------------
@@ -125,6 +125,11 @@ function setprompt {
 	local subsh=
 	local remote=0
 	local shlvl=0
+	if [[ $ppid -eq 0 && -r /proc/self/stat ]]; then
+		# for chroot using unshare like arch-chroot does
+		local stat=$(</proc/self/stat)
+		ppid=$(echo $stat | awk '{print $4; }')
+	fi
 	while [[ $ppid -ne 1 ]]; do
 		[ -r /proc/$ppid/comm ] || break
 		local comm=$(</proc/$ppid/comm)
