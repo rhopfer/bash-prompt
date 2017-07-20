@@ -1,0 +1,8 @@
+<span font_weight="bold">~</span> <span color="#00a800">$</span> echo -n "no new line"
+no new line<span font_weight="bold" color="#8a8a8a">↵</span>
+<span font_weight="bold">~</span> <span color="#00a800">$</span> PROMPT_FORCEBOL="\e[1;35m$" echo -n "no new line"
+no new line<span font_weight="bold" color="#E850A8">$</span>
+<span font_weight="bold">~</span> <span color="#00a800">$</span> PROMPT_FORCEBOL=1 echo -n "no new line"
+no new line
+<span font_weight="bold">~</span> <span color="#00a800">$</span> PROMPT_FORCEBOL=1 echo -n "no new line"
+no new line<span font_weight="bold">~</span> <span color="#00a800">$</span>

@@ -8,7 +8,7 @@ With many features:
 
 ![Full prompt](images/full.png)
 
-Also good readable with light background:
+Also good readable on light background:
 
 ![White background](images/white.png)
 
@@ -57,9 +57,16 @@ The username can be forced on or off by setting `PROMPT_USER`.
 
 ![Host](images/host.png)
 
-**X11 forwarding.** If `DISPLAY` variable is set, it will be shown by a green `@` before the host part.
+**X11 forwarding.** If `DISPLAY` variable is set, this will be shown by a green `@` before the host part.
 
 ![Display](images/display.png)
+
+**Force begin of line**. If the cursor is not on the first column, a gray `↵` is printed and the prompt starts on new line.
+
+![BOL](images/bol.png)
+
+`PROMPT_FORCEBOL=0` disables this behavior. The printed sign can be changed by `PROMPT_FORCEBOL=string`. With `PROMPT_FORCEBOL=1` no sign will be printed.
+
 
 ## Use
 Copy `bash_prompt.sh` to e.g. `~/.bash_prompt` and source it with

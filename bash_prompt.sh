@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: January 31, 2017
+# Last modified: July 19, 2017
 #
 # Environment Variables
 # ---------------------
@@ -11,10 +11,10 @@
 #     Set it to 'git' or 'svn' to enable only one of both.
 #
 # PROMPT_HOST (boolean)
-#     Show hostname in prompt. Normaly shown on remote host. 
+#     Show hostname in prompt. Normally shown on remote host. 
 #
 # PROMPT_USER (boolean)
-#     Show username in prompt. Normaly shown when root.
+#     Show username in prompt. Normally shown when root.
 #
 # PROMPT_IGNORE (string)
 #     Colon separated string of sub-shells to ignore.
@@ -57,11 +57,31 @@
 #     Example:
 #         PROMPT_COLORS="path=1;30:sign=1;33"
 #
+# PROMPT_FORCEBOL (boolean, string)
+#     Force prompt to start on begin of line. Default it prints a gray '↵'.
+#
 
 function setprompt {
 	local retval=$?
 	local yes="(1|true|yes|always)"
 	local no="(0|false|no|never)"
+
+	# read cursor position
+	local nlsign="\e[1;30m↵\e[0m"
+	local col
+	if [[ ! "$PROMPT_FORCEBOL" =~ $no || "$PROMPT_FORCEBOL" =~ "[" ]]; then
+		if [[ "$PROMPT_FORCEBOL" =~ $yes && ! "$PROMPT_FORCEBOL" =~ "[" ]]; then
+			nlsign=""
+		elif [[ -n "$PROMPT_FORCEBOL" ]]; then
+			nlsign=$PROMPT_FORCEBOL
+		fi
+		echo -en "\e[6n"
+		read -sdR col
+		col=${col#*;}
+		if [[ $col -gt 1 ]]; then
+			echo -e $nlsign
+		fi
+	fi
 
 	local nocolor="\[\e[0m\]"
 	declare -A colors
@@ -159,10 +179,10 @@ function setprompt {
 
 	# Hostname
 	local host=""
-	if [[ "$PROMPT_HOST" =~ $yes || $remote -eq 1 ]]; then
-		host="\H"
-	elif [[ "$PROMPT_HOST" =~ $no ]]; then
-		: # do nothing
+	if [[ ! "$PROMPT_HOST" =~ $no ]]; then
+		if [[ $remote -eq 1 ]]; then
+			host="\H"
+		fi
 	fi
 	if [[ -n "$host" ]]; then
 		if [[ -n "$DISPLAY" ]]; then
