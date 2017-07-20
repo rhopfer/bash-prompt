@@ -145,6 +145,11 @@ function setprompt {
 	local subsh=
 	local remote=0
 	local shlvl=0
+	if [[ $ppid -eq 0 && -r /proc/self/stat ]]; then
+		# for chroot using unshare like arch-chroot does
+		local stat=$(</proc/self/stat)
+		ppid=$(echo $stat | awk '{print $4; }')
+	fi
 	while [[ $ppid -ne 1 ]]; do
 		[ -r /proc/$ppid/comm ] || break
 		local comm=$(</proc/$ppid/comm)
