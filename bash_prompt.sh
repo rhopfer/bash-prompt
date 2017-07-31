@@ -2,13 +2,13 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: July 19, 2017
+# Last modified: July 31, 2017
 #
 # Environment Variables
 # ---------------------
 # PROMPT_REPOS (boolean or string)
-#     Show git or svn repository. Set it to 0 to disable it.
-#     Set it to 'git' or 'svn' to enable only one of both.
+#     Show git, svn, or hg repository. Set it to 0 to disable it.
+#     Set it to 'git', 'svn', or 'hg' to enable only one of these.
 #
 # PROMPT_HOST (boolean)
 #     Show hostname in prompt. Normally shown on remote host. 
@@ -302,16 +302,18 @@ function setprompt {
 		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ svn ]]; then
 			local nosvn=1
 		fi
+		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ hg ]]; then
+			local nohg=1
+		fi
 	fi
 	if [[ -x /usr/bin/git && ! $nogit -eq 1 ]]; then
-		local git_info=$(/usr/bin/git name-rev HEAD 2>/dev/null | sed -nre 's/HEAD (.*)/{\1/p')
+		local git_info=$(/usr/bin/git name-rev HEAD 2>/dev/null | sed -nre 's/HEAD (.*)/\1/p')
 		if [[ -n ${git_info} ]]; then
 			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
 				git_info="${git_info}${colors[changes]}*${colors[repos]}"
 			fi
-			git_info="${git_info}}"
+			repos="${colors[repos]}{${git_info}}"
 		fi
-		repos="${colors[repos]}${git_info}"
 	fi
 	if [[ -x /usr/bin/svnversion && ! $nosvn -eq 1 ]]; then
 		local svn_stat=$(/usr/bin/svnversion 2>/dev/null)
@@ -321,9 +323,17 @@ function setprompt {
 			if [[ $svn_stat =~ M$ ]]; then
 				svn_rev="${svn_rev}${colors[changes]}*${colors[repos]}"
 			fi
-			svn_info="{r${svn_rev}}"
+			repos="${repos}${colors[repos]}{r${svn_rev}}"
 		fi
-		repos="${repos}${colors[repos]}${svn_info}"
+	fi
+	if [[ -x /usr/bin/hg && ! $nohg -eq 1 ]]; then
+		local hg_info=$(/usr/bin/hg branch 2>/dev/null)
+		if [[ -n ${hg_info} ]]; then
+			if [[ $(/usr/bin/hg status -q 2>/dev/null | grep -E '^[MAR]+ ') ]]; then
+				hg_info="${hg_info}${colors[changes]}*${colors[repos]}"
+			fi
+			repos="${repos}${colors[repos]}{${hg_info}}"
+		fi
 	fi
 		
 	# Subshell

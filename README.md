@@ -13,6 +13,7 @@ Also good readable on light background:
 ![White background](images/white.png)
 
 ## Features
+All features are enabled by default.
 
 **Return code.** If the return code is not 0, the prompt sign switches to red and the return code is shown:
 
@@ -39,7 +40,7 @@ Red means it is readonly, yellow it is writeable for everyone.
 
 ![Work bases](images/bases.png)
 
-**Repository.** Inside a GIT or SVN repository it shows the current branch respectively the revision and a star if there are uncommited changes.
+**Repository.** Inside a GIT, SVN or Hg repository it shows the current branch respectively the revision and a star if there are uncommited changes.
 This feature can be adjusted by the variable `PROMPT_REPOS` (0, git, svn).
 
 ![~/dev/bash-prompt{master} $](images/git.png)
