@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: July 31, 2017
+# Last modified: August 16, 2017
 #
 # Environment Variables
 # ---------------------
@@ -58,15 +58,16 @@
 #         PROMPT_COLORS="path=1;30:sign=1;33"
 #
 # PROMPT_FORCEBOL (boolean, string)
-#     Force prompt to start on begin of line. Default it prints a gray '↵'.
+#     Force prompt to start on begin of line. On default it prints a gray '↵'.
 #
 
 function setprompt {
 	local retval=$?
 	local yes="(1|true|yes|always)"
 	local no="(0|false|no|never)"
+	local nocolor="\[\e[0m\]"
 
-	# read cursor position
+	# Force start of line
 	local nlsign="\e[1;30m↵\e[0m"
 	local col
 	if [[ ! "$PROMPT_FORCEBOL" =~ $no || "$PROMPT_FORCEBOL" =~ "[" ]]; then
@@ -75,15 +76,14 @@ function setprompt {
 		elif [[ -n "$PROMPT_FORCEBOL" ]]; then
 			nlsign=$PROMPT_FORCEBOL
 		fi
-		echo -en "\e[6n"
-		read -sdR col
+		# read cursor position
+		read -s -dR -p $'\e[6n' col
 		col=${col#*;}
 		if [[ $col -gt 1 ]]; then
 			echo -e $nlsign
 		fi
 	fi
 
-	local nocolor="\[\e[0m\]"
 	declare -A colors
 	if [[ $(tput colors 2> /dev/null) -gt 8 ]]; then
 		# 256 color terminal
