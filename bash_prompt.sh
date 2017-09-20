@@ -351,5 +351,5 @@ function setprompt {
 	PS1="${subsh}${user}${host}${path}${repos}${jobs} ${sign} "
 }
 
-export PROMPT_COMMAND=setprompt
+PROMPT_COMMAND=setprompt
 
