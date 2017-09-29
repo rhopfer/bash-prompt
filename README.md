@@ -40,8 +40,8 @@ Red means it is readonly, yellow it is writeable for everyone.
 
 ![Work bases](images/bases.png)
 
-**Repository.** Inside a GIT, SVN or Hg repository it shows the current branch respectively the revision and a star if there are uncommited changes.
-This feature can be adjusted by the variable `PROMPT_REPOS` (0, git, svn).
+**Repository.** Inside a GIT, SVN, Hg, or Bazaar repository it shows the current branch respectively the revision and a star if there are uncommited changes.
+This feature can be adjusted by the variable `PROMPT_REPOS` (0, git, svn, hg, bzr).
 
 ![~/dev/bash-prompt{master} $](images/git.png)
 
@@ -83,6 +83,14 @@ If you want to use it in all new shells, add it to your `.bashrc`, e.g.
 If you want to install it for all users on the system, copy `bash_prompt.sh` to
 * `/etc/bash/bashrc.d/` (e.g. on Gentoo)
 * `/etc/profile.d/` (e.g. on Debian and Ubuntu)
+
+
+## Requirements
+
+* Bash > 4.0
+* readlink
+* sed
+
 
 ## Color scheme
 The script contains a color sheme for 256 color terminals as well as a fallback scheme for terminals which support just 16 colors.

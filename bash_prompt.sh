@@ -7,8 +7,8 @@
 # Environment Variables
 # ---------------------
 # PROMPT_REPOS (boolean or string)
-#     Show git, svn, or hg repository. Set it to 0 to disable it.
-#     Set it to 'git', 'svn', or 'hg' to enable only one of these.
+#     Show repository. Set it to 0 to disable it.
+#     Set it to one or more of 'git', 'svn', 'hg' or 'bzr' to enable only these.
 #
 # PROMPT_HOST (boolean)
 #     Show hostname in prompt. Normally shown on remote host. 
@@ -295,18 +295,22 @@ function setprompt {
 
 	# Repositories
 	local repos=""
+	local git svn hg bzr
 	if [[ -n "$PROMPT_REPOS" && ! $PROMPT_REPOS =~ $yes ]]; then
-		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ git ]]; then
-			local nogit=1
-		fi
-		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ svn ]]; then
-			local nosvn=1
-		fi
-		if [[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS =~ hg ]]; then
-			local nohg=1
-		fi
+		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *git* ]] && git=0
+		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *svn* ]] && svn=0
+		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *hg* ]] && hg=0
+		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *bzr* ]] && bzr=0
 	fi
-	if [[ -x /usr/bin/git && ! $nogit -eq 1 ]]; then
+	local dir=$(readlink -f "$PWD")
+	while [[ -n "$dir" ]]; do
+		[[ -z "$git" && -d "$dir/.git" ]] && git=1 && break
+		[[ -z "$svn" && -d "$dir/.svn" ]] && svn=1 && break
+		[[ -z "$hg" && -d "$dir/.hg" ]] && hg=1 && break
+		[[ -z "$bzr" && -d "$dir/.bzr" ]] && bzr=1 && break
+		dir="${dir%/*}"
+	done
+	if [[ $git -eq 1 && -x /usr/bin/git ]]; then
 		local git_info=$(/usr/bin/git name-rev HEAD 2>/dev/null | sed -nre 's/HEAD (.*)/\1/p')
 		if [[ -n ${git_info} ]]; then
 			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
@@ -315,10 +319,9 @@ function setprompt {
 			repos="${colors[repos]}{${git_info}}"
 		fi
 	fi
-	if [[ -x /usr/bin/svnversion && ! $nosvn -eq 1 ]]; then
+	if [[ $svn -eq 1 && -x /usr/bin/svnversion ]]; then
 		local svn_stat=$(/usr/bin/svnversion 2>/dev/null)
 		local svn_rev=$(echo $svn_stat | sed -nre 's/([0-9]+:?[0-9]+).*/\1/p')
-		local svn_info=""
 		if [[ -n $svn_rev ]]; then
 			if [[ $svn_stat =~ M$ ]]; then
 				svn_rev="${svn_rev}${colors[changes]}*${colors[repos]}"
@@ -326,13 +329,25 @@ function setprompt {
 			repos="${repos}${colors[repos]}{r${svn_rev}}"
 		fi
 	fi
-	if [[ -x /usr/bin/hg && ! $nohg -eq 1 ]]; then
+	if [[ $hg -eq 1 && -x /usr/bin/hg ]]; then
 		local hg_info=$(/usr/bin/hg branch 2>/dev/null)
 		if [[ -n ${hg_info} ]]; then
 			if [[ $(/usr/bin/hg status -q 2>/dev/null | grep -E '^[MAR]+ ') ]]; then
 				hg_info="${hg_info}${colors[changes]}*${colors[repos]}"
 			fi
 			repos="${repos}${colors[repos]}{${hg_info}}"
+		fi
+	fi
+	if [[ $bzr -eq 1 && -x /usr/bin/bzr ]]; then
+		local bzr_info=$(/usr/bin/bzr version-info --check-clean --custom --template='{branch_nick} {revno} {clean}' 2> /dev/null)
+		if [[ -n ${bzr_info} ]]; then
+			local bzr_branch bzr_rev bzr_clean
+			read bzr_branch bzr_rev bzr_clean <<<"$bzr_info"
+			bzr_info="$bzr_branch/$bzr_rev"
+			if [[ $bzr_clean -eq 0 ]]; then
+				bzr_info="${bzr_info}${colors[changes]}*${colors[repos]}"
+			fi
+			repos="${repos}${colors[repos]}{${bzr_info}}"
 		fi
 	fi
 		
