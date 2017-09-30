@@ -66,6 +66,8 @@ function setprompt {
 	local yes="(1|true|yes|always)"
 	local no="(0|false|no|never)"
 	local nocolor="\[\e[0m\]"
+	local strike="\[\e[9m\]"
+	local nostrike="\[\e[29m\]"
 
 	# Force start of line
 	local nlsign="\e[1;30m↵\e[0m"
@@ -295,19 +297,20 @@ function setprompt {
 
 	# Repositories
 	local repos=""
-	local git svn hg bzr
+	local git svn hg bzr owncloud
 	if [[ -n "$PROMPT_REPOS" && ! $PROMPT_REPOS =~ $yes ]]; then
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *git* ]] && git=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *svn* ]] && svn=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *hg* ]] && hg=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *bzr* ]] && bzr=0
+		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *owncloud* ]] && owncloud=0
 	fi
 	local dir=$(readlink -f "$PWD")
 	while [[ -n "$dir" ]]; do
-		[[ -z "$git" && -d "$dir/.git" ]] && git=1 && break
-		[[ -z "$svn" && -d "$dir/.svn" ]] && svn=1 && break
-		[[ -z "$hg" && -d "$dir/.hg" ]] && hg=1 && break
-		[[ -z "$bzr" && -d "$dir/.bzr" ]] && bzr=1 && break
+		[[ -z "$git" && -d "$dir/.git" ]] && git=1
+		[[ -z "$svn" && -d "$dir/.svn" ]] && svn=1
+		[[ -z "$hg" && -d "$dir/.hg" ]] && hg=1
+		[[ -z "$bzr" && -d "$dir/.bzr" ]] && bzr=1
 		dir="${dir%/*}"
 	done
 	if [[ $git -eq 1 && -x /usr/bin/git ]]; then
@@ -350,6 +353,25 @@ function setprompt {
 			repos="${repos}${colors[repos]}{${bzr_info}}"
 		fi
 	fi
+
+	# Owncloud
+	local dir=$(readlink -f "$PWD")
+	local cloud_info
+	while [[ -n "$dir" ]]; do
+		if [[ -e "$dir/.owncloudsync.log" ]]; then
+			grep -q "localPath=$dir" "$HOME/.local/share/data/ownCloud/owncloud.cfg" 2> /dev/null
+			(( $? != 0 )) && break
+			if pidof owncloud > /dev/null; then
+				cloud_info="owncloud"
+			else
+				cloud_info="${strike}owncloud${nostrike}"
+			fi
+			repos="${repos}${colors[repos]}{${cloud_info}}"
+			break
+		fi
+		dir="${dir%/*}"
+	done
+
 		
 	# Subshell
 	if [[ "$subsh" == bash ]]; then
@@ -363,7 +385,7 @@ function setprompt {
 		subsh="${colors[term]}(${subsh})${nocolor} "
 	fi
 
-	PS1="${subsh}${user}${host}${path}${repos}${jobs} ${sign} "
+	PS1="${nocolor}${subsh}${user}${host}${path}${repos}${jobs} ${sign} "
 }
 
 PROMPT_COMMAND=setprompt
