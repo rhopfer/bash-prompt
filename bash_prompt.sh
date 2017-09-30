@@ -306,6 +306,7 @@ function setprompt {
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *owncloud* ]] && owncloud=0
 	fi
 	local dir=$(readlink -f "$PWD")
+	[[ -n "$GIT_DIR" ]] && git=1
 	while [[ -n "$dir" ]]; do
 		[[ -z "$git" && -d "$dir/.git" ]] && git=1
 		[[ -z "$svn" && -d "$dir/.svn" ]] && svn=1
