@@ -220,9 +220,21 @@ function setprompt {
 
 	# Path
 	local path="$PWD"
-	local base
-	local basebath
-	local root
+	local pwd base basebath root skip
+	# Resolve relative PWD (happend if inside deleted directory)
+	while [[ -n $path ]]; do
+		local dir=${path##*/}
+		if [[ "$dir" == '..' ]]; then
+			let skip=$skip+1
+		elif [[ $skip -gt 0 ]]; then
+			let skip=$skip-1
+		else
+			pwd="/${dir}${pwd}"
+		fi
+		path=${path%/*}
+	done
+	path="$pwd"
+
 	while read basepath name; do
 		basepath="${basepath/#\~/$HOME}"
 		basepath="${basepath%/}"
@@ -238,22 +250,37 @@ function setprompt {
 		base="${colors[path]}~${nocolor}"
 	fi
 
-	[[ $( readlink -f . ) != "$PWD" ]] && local symlink=1
-	local dirs
+	local realpath=$( readlink -f . )
+	local dirs symlink deleted
 	local dirtrim=${PROMPT_DIRTRIM:-2}
+	if [[ "$realpath" == '' ]]; then
+		deleted=1
+	elif [[ "$realpath" != "$pwd" ]]; then
+		symlink=1
+	fi
+
 	while [[ -n "$path" ]]; do
 		local elem="${path##*/}"
+		local count=$((count + 1))
 		dirs="${elem}/${dirs}"
-		if [[ $symlink -ne 0 && -L "${root}${path}" ]]; then
+
+		if [[ $deleted -eq 1 ]]; then
+			realpath=$( readlink -f "${root}${path}" )
+			if [[ "$realpath" != '' ]]; then
+				dirs="${strike}$dirs"
+				deleted=0
+				[[ "$realpath" != "${root}${path}" ]] && symlink=1
+			fi
+		elif [[ $symlink -eq 1 && -L "${root}${path}" ]]; then
 			dirs="${colors[symlink]}$dirs"
 			symlink=0
 		fi
 		path="${path%/*}"
-		local count=$((count + 1))
 		if [[ $dirtrim -gt 0 && $count -eq $dirtrim ]]; then
 			break
 		fi
 	done
+	[[ -n $dirs && $deleted -eq 1 ]] && dirs="${strike}$dirs"
 	[[ -n $dirs && $symlink -eq 1 ]] && dirs="${colors[symlink]}$dirs"
 	if [[ -n $path ]]; then
 		local ellipsis='...'
@@ -267,11 +294,12 @@ function setprompt {
 	[[ ( -n "$base" && -n "$dirs" ) ]] && dirs="/$dirs"
 	path="${dirs%/}"
 	path="${base}${colors[path]}${path}"
+	[[ -n $deleted ]] && path="${path}${nostrike}"
 
 	# Show extra '/' if path is not or world writeable
-	if [[ ! -w "$PWD" ]]; then
+	if [[ ! -w "$pwd" ]]; then
 		path="${path%%/}${colors[readonly]}/"
-	elif [[ ! -k "$PWD" && $((`stat -Lc "0%a" $PWD` & 0002)) != 0 ]]; then
+	elif [[ ! -k "$pwd" && $((`stat -Lc "0%a" $pwd` & 0002)) != 0 ]]; then
 		path="${path%%/}${colors[unsafe]}/"
 	fi
 	if [[ -n "${user}" || -n "${host}" ]]; then
@@ -305,7 +333,7 @@ function setprompt {
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *bzr* ]] && bzr=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *owncloud* ]] && owncloud=0
 	fi
-	local dir=$(readlink -f "$PWD")
+	local dir=$( readlink -f "$pwd" )
 	[[ -n "$GIT_DIR" ]] && git=1
 	while [[ -n "$dir" ]]; do
 		[[ -z "$git" && -d "$dir/.git" ]] && git=1
@@ -356,7 +384,7 @@ function setprompt {
 	fi
 
 	# Owncloud
-	local dir=$(readlink -f "$PWD")
+	local dir=$( readlink -f "$pwd" )
 	local cloud_info
 	while [[ -n "$dir" ]]; do
 		if [[ -e "$dir/.owncloudsync.log" ]]; then
