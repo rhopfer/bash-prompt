@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: August 16, 2017
+# Last modified: October 5, 2017
 #
 # Environment Variables
 # ---------------------
@@ -340,6 +340,7 @@ function setprompt {
 		[[ -z "$svn" && -d "$dir/.svn" ]] && svn=1
 		[[ -z "$hg" && -d "$dir/.hg" ]] && hg=1
 		[[ -z "$bzr" && -d "$dir/.bzr" ]] && bzr=1
+		mountpoint -q -- "$dir" && break
 		dir="${dir%/*}"
 	done
 	if [[ $git -eq 1 && -x /usr/bin/git ]]; then
@@ -398,10 +399,10 @@ function setprompt {
 			repos="${repos}${colors[repos]}{${cloud_info}}"
 			break
 		fi
+		mountpoint -q -- "$dir" && break
 		dir="${dir%/*}"
 	done
 
-		
 	# Subshell
 	if [[ "$subsh" == bash ]]; then
 		subsh="$shlvl"
