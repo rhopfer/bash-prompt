@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: October 5, 2017
+# Last modified: October 6, 2017
 #
 # Environment Variables
 # ---------------------
@@ -235,18 +235,19 @@ function setprompt {
 	done
 	path="$pwd"
 
+	local home="${HOME%%/}"
 	while read basepath name; do
-		basepath="${basepath/#\~/$HOME}"
+		basepath="${basepath/#\~/$home}"
 		basepath="${basepath%/}"
-		if [[ -n "$basepath" && ( $path == "$basepath" || "$path" =~ ^"$basepath/" ) ]]; then
+		if [[ -n "$basepath" && "$path" == "$basepath"* ]]; then
 			path=${path/#$basepath/}
 			root="${basepath%/}"
 			base="${colors[base]}${name}${nocolor}"
 			break
 		fi
 	done < <(<<<$PROMPT_BASES awk -F= '{print $2,$1}' RS=':|\n')
-	if [[ -z "$base" && ( $path == "$HOME" || "$path" =~ "$HOME" ) ]]; then
-		path="${path/$HOME/}"
+	if [[ -z "$base" && "$path" == "$home"* ]]; then
+		path="${path/$home/}"
 		base="${colors[path]}~${nocolor}"
 	fi
 
