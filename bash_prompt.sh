@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: October 6, 2017
+# Last modified: October 30, 2017
 #
 # Environment Variables
 # ---------------------
@@ -300,7 +300,7 @@ function setprompt {
 	# Show extra '/' if path is not or world writeable
 	if [[ ! -w "$pwd" ]]; then
 		path="${path%%/}${colors[readonly]}/"
-	elif [[ ! -k "$pwd" && $((`stat -Lc "0%a" $pwd` & 0002)) != 0 ]]; then
+	elif [[ ! -k "$pwd" && $((`stat -Lc "0%a" "$pwd"` & 0002)) != 0 ]]; then
 		path="${path%%/}${colors[unsafe]}/"
 	fi
 	if [[ -n "${user}" || -n "${host}" ]]; then
