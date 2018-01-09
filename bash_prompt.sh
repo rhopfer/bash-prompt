@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: October 30, 2017
+# Last modified: January 9, 2018
 #
 # Environment Variables
 # ---------------------
@@ -231,6 +231,8 @@ function setprompt {
 		local dir=${path##*/}
 		if [[ "$dir" == '..' ]]; then
 			let skip=$skip+1
+		elif [[ "$dir" == '.' ]]; then
+			:
 		elif [[ $skip -gt 0 ]]; then
 			let skip=$skip-1
 		else
