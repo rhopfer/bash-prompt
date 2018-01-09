@@ -192,8 +192,8 @@ function setprompt {
 	# Hostname
 	local host=""
 	if [[ ! "$PROMPT_HOST" =~ $no ]]; then
-		if [[ $remote -eq 1 ]]; then
-			host="\H"
+		if [[ $remote -eq 1 || -n "$PROMPT_HOST" ]]; then
+			host=`hostname`
 		fi
 	fi
 	if [[ -n "$host" ]]; then
