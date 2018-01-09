@@ -61,6 +61,11 @@
 #     Force prompt to start on begin of line. On default it prints a gray '↵'.
 #
 
+if [[ $- != *i* ]] ; then
+    # Shell is non-interactive.  Be done now!
+    return
+fi
+
 function setprompt {
 	local retval=$?
 	local yes="(1|true|yes|always)"
