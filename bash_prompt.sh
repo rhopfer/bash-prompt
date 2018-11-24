@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: January 9, 2018
+# Last modified: November 24, 2018
 #
 # Environment Variables
 # ---------------------
@@ -64,6 +64,10 @@
 if [[ $- != *i* ]] ; then
     # Shell is non-interactive.  Be done now!
     return
+fi
+
+if [[ $(readlink -f /proc/self/fd/0) =~ /dev/tty ]]; then
+	export __prompt_tty=1
 fi
 
 function setprompt {
@@ -292,10 +296,9 @@ function setprompt {
 	[[ -n $dirs && $deleted -eq 1 ]] && dirs="${strike}$dirs"
 	[[ -n $dirs && $symlink -eq 1 ]] && dirs="${colors[symlink]}$dirs"
 	if [[ -n $path ]]; then
-		local ellipsis='...'
-		if [[ $CHARMAP == UTF-8 || $LC_CTYPE =~ UTF || $(locale -k charmap) =~ UTF ]]; then
-			ellipsis='…'
-		fi
+		local ellipsis='…'
+		# ttys does not display unicode characters
+		[[ -n $__prompt_tty ]] && ellipsis='...'
 		dirs="${ellipsis}/$dirs"
 	elif [[ ( -z $base ) ]]; then
 		dirs="/$dirs"
