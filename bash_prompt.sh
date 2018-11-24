@@ -74,6 +74,7 @@ if [[ $(</proc/$$/environ tr '\0' '\n' | grep -E ^_=) == _=/usr/bin/newgrp ]]; t
 	__prompt_newgrp="%$(groups | awk '{ print $1 }')"
 fi
 
+
 function setprompt {
 	local retval=$?
 	local yes="(1|true|yes|always)"
@@ -164,6 +165,9 @@ function setprompt {
 		# for chroot using unshare like arch-chroot does
 		local stat=$(</proc/self/stat)
 		ppid=$(echo $stat | awk '{print $4; }')
+	fi
+	if [[ -f /.dockerenv ]]; then
+		subsh=docker
 	fi
 	while [[ $ppid -ne 1 ]]; do
 		[ -r /proc/$ppid/comm ] || break
