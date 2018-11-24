@@ -70,6 +70,10 @@ if [[ $(readlink -f /proc/self/fd/0) =~ /dev/tty ]]; then
 	export __prompt_tty=1
 fi
 
+if [[ $(</proc/$$/environ tr '\0' '\n' | grep -E ^_=) == _=/usr/bin/newgrp ]]; then
+	__prompt_newgrp="%$(groups | awk '{ print $1 }')"
+fi
+
 function setprompt {
 	local retval=$?
 	local yes="(1|true|yes|always)"
@@ -173,7 +177,9 @@ function setprompt {
 			fi
 		fi
 
-		if [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
+		if [[ -n "$__prompt_newgrp" ]]; then
+			subsh="$__prompt_newgrp"
+		elif [[ ${EUID} == 0 && "$(stat -c %d:%i /)" != "$(stat -c %d:%i /proc/1/root/.)" ]]; then
 			subsh=chroot
 		fi
 
