@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: November 24, 2018
+# Last modified: March 1, 2019
 #
 # Environment Variables
 # ---------------------
@@ -366,7 +366,7 @@ function setprompt {
 		dir="${dir%/*}"
 	done
 	if [[ $git -eq 1 && -x /usr/bin/git ]]; then
-		local git_info=$(/usr/bin/git name-rev HEAD 2>/dev/null | sed -nre 's/HEAD (.*)/\1/p')
+		local git_info=$(/usr/bin/git symbolic-ref -q --short HEAD)
 		if [[ -n ${git_info} ]]; then
 			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
 				git_info="${git_info}${colors[changes]}*${colors[repos]}"
