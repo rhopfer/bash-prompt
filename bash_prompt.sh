@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: March 1, 2019
+# Last modified: September 6, 2019
 #
 # Environment Variables
 # ---------------------
