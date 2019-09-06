@@ -367,6 +367,9 @@ function setprompt {
 	done
 	if [[ $git -eq 1 && -x /usr/bin/git ]]; then
 		local git_info=$(/usr/bin/git symbolic-ref -q --short HEAD)
+		if [[ -z "$git_info" ]]; then
+			git_info=$(/usr/bin/git rev-parse -q --short HEAD)
+		fi
 		if [[ -n ${git_info} ]]; then
 			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
 				git_info="${git_info}${colors[changes]}*${colors[repos]}"
