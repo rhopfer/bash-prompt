@@ -192,7 +192,7 @@ function setprompt {
 				shlvl=$((shlvl+1))
 			elif [[ $shlvl -gt 0 && ! "$PROMPT_IGNORE" =~ bash ]]; then
 				subsh=bash
-			elif [[ "$comm" =~ script|screen|tmux|vcsh && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
+			elif [[ "$comm" =~ script|screen|tmux|vcsh|pipenv && ! "$PROMPT_IGNORE" =~ "$comm" ]]; then
 				subsh=$comm
 			fi
 		fi
