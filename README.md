@@ -45,7 +45,7 @@ This feature can be adjusted by the variable `PROMPT_REPOS` (0, git, svn, hg, bz
 
 ![~/dev/bash-prompt{master} $](images/git.png)
 
-**Subshell.** If the current bash is running inside one of screen, tmux, script(1), chroot(1), [vcsh](https://github.com/RichiH/vcsh/), or another bash, this will be shown on the beginning of the prompt. Each of them can be ignored by putting it to the `PROMPT_IGNORE` environment variable.
+**Subshell.** If the current bash is running inside one of screen, tmux, script(1), chroot(1), pipenv, [vcsh](https://github.com/RichiH/vcsh/), or another bash, this will be shown on the beginning of the prompt. Each of them can be ignored by putting it to the `PROMPT_IGNORE` environment variable.
 
 ![Subshell](images/subshell.png)
 

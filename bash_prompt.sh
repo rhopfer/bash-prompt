@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: May 6, 2020
+# Last modified: May 26, 2020
 #
 # Environment Variables
 # ---------------------
@@ -49,6 +49,7 @@
 #         unsafe        the trailing slash shown if the path is world writeable
 #         repos         the repository
 #         changes       the sign for a repository with modifications
+#         stash         the sign for a repository with stashes
 #         term          the subshell
 #
 #     Colors:
@@ -82,6 +83,13 @@ function setprompt {
 	local nocolor="\[\e[0m\]"
 	local strike="\[\e[9m\]"
 	local nostrike="\[\e[29m\]"
+
+	local ellipsis='…' stashsign='⇓'
+	# TTYs do not display unicode characters
+	if [[ -n $__prompt_tty ]]; then
+		ellipsis='...'
+		stashsign='&'
+	fi
 
 	# Force start of line
 	local nlsign="\e[1;30m↵\e[0m"
@@ -117,6 +125,7 @@ function setprompt {
 		colors[readonly]="1;38;5;160"
 		colors[unsafe]="1;38;5;136"
 		colors[changes]="0"
+		colors[stash]="0"
 		colors[repos]="0;38;5;37"
 		colors[term]="0;38;5;125"
 		colors[base]="4"
@@ -136,6 +145,7 @@ function setprompt {
 		colors[readonly]="0;31"   # red
 		colors[unsafe]="1;33"     # bright yellow
 		colors[changes]="0"       # bold
+		colors[stash]="0"         # bold
 		colors[repos]="1;36"      # bright blue
 		colors[term]="0;35"       # magenta
 		colors[base]="4"          # underlined
@@ -306,9 +316,6 @@ function setprompt {
 	[[ -n $dirs && $deleted -eq 1 ]] && dirs="${strike}$dirs"
 	[[ -n $dirs && $symlink -eq 1 ]] && dirs="${colors[symlink]}$dirs"
 	if [[ -n $path ]]; then
-		local ellipsis='…'
-		# ttys does not display unicode characters
-		[[ -n $__prompt_tty ]] && ellipsis='...'
 		dirs="${ellipsis}/$dirs"
 	elif [[ ( -z $base ) ]]; then
 		dirs="/$dirs"
@@ -373,9 +380,13 @@ function setprompt {
 		if [[ -z "$git_info" ]]; then
 			git_info=$(/usr/bin/git rev-parse -q --short HEAD)
 		fi
-		if [[ -n ${git_info} ]]; then
+		if [[ -n "${git_info}" ]]; then
 			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
 				git_info="${git_info}${colors[changes]}*${colors[repos]}"
+			fi
+			local git_stash=$(git stash list | wc -l)
+			if [[ $git_stash -gt 0 ]]; then
+				git_info="${git_info}${colors[stash]}${stashsign}${colors[repos]}"
 			fi
 			repos="${colors[repos]}{${git_info}}"
 		fi
