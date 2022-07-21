@@ -62,8 +62,14 @@
 #     Force prompt to start on begin of line. On default it prints a gray '↵'.
 #
 
-if [[ $- != *i* ]] ; then
+if [[ $- != *i* ]]; then
     # Shell is non-interactive.  Be done now!
+    return
+fi
+
+if [[ "$TERM" == dumb ]]; then
+    # Make emacs / tramp happy.
+	PS1='$ '
     return
 fi
 
@@ -381,12 +387,12 @@ function setprompt {
 			git_info=$(/usr/bin/git rev-parse -q --short HEAD)
 		fi
 		if [[ -n "${git_info}" ]]; then
-			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
-				git_info="${git_info}${colors[changes]}*${colors[repos]}"
-			fi
 			local git_stash=$(git stash list | wc -l)
 			if [[ $git_stash -gt 0 ]]; then
 				git_info="${git_info}${colors[stash]}${stashsign}${colors[repos]}"
+			fi
+			if [[ $(/usr/bin/git status -s 2>/dev/null | grep -E '^ ?([MARD]+) ') ]]; then
+				git_info="${git_info}${colors[changes]}*${colors[repos]}"
 			fi
 			repos="${colors[repos]}{${git_info}}"
 		fi
