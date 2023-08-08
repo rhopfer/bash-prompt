@@ -360,13 +360,14 @@ function setprompt {
 
 	# Repositories
 	local repos=""
-	local git svn hg bzr owncloud
+	local git svn hg bzr owncloud nextcloud
 	if [[ -n "$PROMPT_REPOS" && ! $PROMPT_REPOS =~ $yes ]]; then
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *git* ]] && git=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *svn* ]] && svn=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *hg* ]] && hg=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *bzr* ]] && bzr=0
 		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *owncloud* ]] && owncloud=0
+		[[ $PROMPT_REPOS =~ $no || ! $PROMPT_REPOS == *nextcloud* ]] && nextcloud=0
 	fi
 	local dir=$( readlink -f "$pwd" )
 	[[ -n "$GIT_DIR" ]] && git=1
