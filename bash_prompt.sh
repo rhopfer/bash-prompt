@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: May 26, 2020
+# Last modified: October 2, 2023
 #
 # Environment Variables
 # ---------------------
@@ -61,6 +61,14 @@
 # PROMPT_FORCEBOL (boolean, string)
 #     Force prompt to start on begin of line. On default it prints a gray '↵'.
 #
+# PROMPT_PLUGINS (array)
+#     Allows to run custom functions. For every value 'myplugin' in array the function '__prompt_plugin_myplugin' is called.
+#
+#     Example:
+#         PROMPT_PLUGINS+=( myplugin )
+#         __prompt_plugin_myplugin() {
+#			# your custom code
+#         }
 
 if [[ $- != *i* ]]; then
     # Shell is non-interactive.  Be done now!
@@ -81,6 +89,8 @@ if [[ $(</proc/$$/environ tr '\0' '\n' | grep -E ^_=) == _=/usr/bin/newgrp ]]; t
 	__prompt_newgrp="%$(groups | awk '{ print $1 }')"
 fi
 
+unset __prompt_environ
+declare -A __prompt_environ
 
 function setprompt {
 	local retval=$?
@@ -89,6 +99,19 @@ function setprompt {
 	local nocolor="\[\e[0m\]"
 	local strike="\[\e[9m\]"
 	local nostrike="\[\e[29m\]"
+
+	# Plugins
+	if [[ -n "$PROMPT_PLUGINS" ]]; then
+		local plugin
+		for plugin in "${PROMPT_PLUGINS[@]}"; do
+			local fun
+			fun="__prompt_plugin_$plugin"
+			if ! command -v $fun >/dev/null; then
+				continue
+			fi
+			eval $fun
+		done
+	fi
 
 	local ellipsis='…' stashsign='⇓'
 	# TTYs do not display unicode characters
@@ -456,6 +479,11 @@ function setprompt {
 		subsh="$subsh:$VCSH_REPO_NAME"
 	elif [[ "$subsh" == screen && -n $WINDOW ]]; then
 		subsh=$subsh:$WINDOW
+	fi
+
+	if [[ -n "${__prompt_environ[*]}" ]]; then
+		local envs=( $(paste -d: <(printf "%s\n" "${!__prompt_environ[@]}") <(printf "%q\n" "${__prompt_environ[@]}")) )
+		subsh=$(IFS=","; echo "${envs[*]}")
 	fi
 	if [[ -n "$subsh" ]]; then
 		subsh="${colors[term]}(${subsh})${nocolor} "
