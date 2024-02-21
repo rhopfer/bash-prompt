@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: October 2, 2023
+# Last modified: February 21, 2024
 #           vim: sw=4 ts=4 et
 #
 # Environment Variables
@@ -62,6 +62,9 @@
 # PROMPT_FORCEBOL (boolean, string)
 #     Force prompt to start on begin of line. On default it prints a gray '↵'.
 #
+# PROMPT_PROXY_LABEL (string)
+#     Override label for proxy indicator. Defaults to 'proxy'.
+#
 # PROMPT_PLUGINS (array)
 #     Allows to run custom functions. For every value 'myplugin' in array the function '__prompt_plugin_myplugin' is called.
 #
@@ -70,6 +73,10 @@
 #         __prompt_plugin_myplugin() {
 #           # your custom code
 #         }
+#
+#    Pre-defined plugins:
+#        proxy    Add proxy indicator to environmen location if a proxy variable like 'http_proxy' is set.
+#
 
 if [[ $- != *i* ]]; then
     # Shell is non-interactive.  Be done now!
@@ -92,6 +99,17 @@ fi
 
 unset __prompt_environ
 declare -A __prompt_environ
+
+__prompt_plugin_proxy() {
+	local proxy
+	for proxy in http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY; do
+		if [[ -n "${!proxy}" ]]; then
+			__prompt_environ[proxy]=${PROMPT_PROXY_LABEL:-proxy}
+			return
+		fi
+	done
+	unset __prompt_environ[proxy]
+}
 
 function setprompt {
     local retval=$?
@@ -483,7 +501,8 @@ function setprompt {
     fi
 
     if [[ -n "${__prompt_environ[*]}" ]]; then
-        local envs=( $(paste -d: <(printf "%s\n" "${!__prompt_environ[@]}") <(printf "%q\n" "${__prompt_environ[@]}")) )
+        # local envs=( $(paste -d: <(printf "%s\n" "${!__prompt_environ[@]}") <(printf "%q\n" "${__prompt_environ[@]}")) )
+        local envs=( $(printf "%q\n" "${__prompt_environ[@]}") )
         subsh=$(IFS=","; echo "${envs[*]}")
     fi
     if [[ -n "$subsh" ]]; then
