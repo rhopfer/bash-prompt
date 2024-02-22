@@ -68,14 +68,16 @@
 # PROMPT_PLUGINS (array)
 #     Allows to run custom functions. For every value 'myplugin' in array the function '__prompt_plugin_myplugin' is called.
 #
+#     Default plugins:
+#         proxy    Add proxy indicator to environmen location if a proxy variable like 'http_proxy' is set.
+#
+#     Default plugins can be disabled by adding the plugin with '-' prefix to PROMPT_PLUGINS.
+#
 #     Example:
-#         PROMPT_PLUGINS+=( myplugin )
+#         PROMPT_PLUGINS+=( myplugin -proxy )
 #         __prompt_plugin_myplugin() {
 #           # your custom code
 #         }
-#
-#    Pre-defined plugins:
-#        proxy    Add proxy indicator to environmen location if a proxy variable like 'http_proxy' is set.
 #
 
 if [[ $- != *i* ]]; then
@@ -100,6 +102,8 @@ fi
 unset __prompt_environ
 declare -A __prompt_environ
 
+__prompt_default_plugins=( proxy )
+
 __prompt_plugin_proxy() {
 	local proxy
 	for proxy in http_proxy https_proxy all_proxy HTTP_PROXY HTTPS_PROXY ALL_PROXY; do
@@ -119,10 +123,23 @@ function setprompt {
     local strike="\[\e[9m\]"
     local nostrike="\[\e[29m\]"
 
+	__prompt_environ=()
+
     # Plugins
+	local plugins=(${__prompt_default_plugins[@]}) plugin
     if [[ -n "$PROMPT_PLUGINS" ]]; then
+		for plugin in "${PROMPT_PLUGINS[@]}"; do
+			if [[ "${plugin:0:1}" == "-" ]]; then
+				plugins=( "${plugins[@]/${plugin:1}}" )
+			else
+				plugins+=( "$plugin" )
+			fi
+		done
+	fi
+	plugins=( $(printf "%s\n" "${plugins[@]}" | sort -u) )
+    if [[ -n "$plugins" ]]; then
         local plugin
-        for plugin in "${PROMPT_PLUGINS[@]}"; do
+        for plugin in "${plugins[@]}"; do
             local fun
             fun="__prompt_plugin_$plugin"
             if ! command -v $fun >/dev/null; then
