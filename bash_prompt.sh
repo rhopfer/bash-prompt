@@ -2,7 +2,7 @@
 #
 #        Author: Roland Hopferwieser <develop -AT- int0x80.at>
 #        Source: https://github.com/rhopfer/bash-prompt
-# Last modified: February 21, 2024
+# Last modified: Spooktober 17, 2025
 #           vim: sw=4 ts=4 et
 #
 # Environment Variables
@@ -79,6 +79,8 @@
 #           # your custom code
 #         }
 #
+# PROMPT_TITLE (string)
+#     Sets the title of the terminal.
 
 if [[ $- != *i* ]]; then
     # Shell is non-interactive.  Be done now!
@@ -99,7 +101,7 @@ if [[ $(</proc/$$/environ tr '\0' '\n' | grep -E ^_=) == _=/usr/bin/newgrp ]]; t
     __prompt_newgrp="%$(groups | awk '{ print $1 }')"
 fi
 
-unset __prompt_environ
+unset __prompt_environ __prompt_title
 declare -A __prompt_environ
 
 __prompt_default_plugins=( proxy )
@@ -517,6 +519,7 @@ function setprompt {
         subsh=$subsh:$WINDOW
     fi
 
+	# Environment
     if [[ -n "${__prompt_environ[*]}" ]]; then
         # local envs=( $(paste -d: <(printf "%s\n" "${!__prompt_environ[@]}") <(printf "%q\n" "${__prompt_environ[@]}")) )
         local envs=( $(printf "%q\n" "${__prompt_environ[@]}") )
@@ -525,6 +528,12 @@ function setprompt {
     if [[ -n "$subsh" ]]; then
         subsh="${colors[term]}(${subsh})${nocolor} "
     fi
+
+	# Title
+	if [[ "${PROMPT_TITLE}" != "$__prompt_title" ]]; then
+		echo -en "\e]0;${PROMPT_TITLE}\007"
+		__prompt_title="${PROMPT_TITLE}"
+	fi
 
     PS1="${nocolor}${subsh}${user}${host}${path}${repos}${jobs} ${sign} "
 }
